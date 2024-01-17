@@ -1,6 +1,10 @@
 <template>
+  <div>
+    this is a editor
+  </div>
   <div class="editor" v-if="editor">
-    <menu-bar class="editor__header" :editor="editor"/>
+    <div class="editor__header__container"><menu-bar class="editor__header" :editor="editor"/></div>
+
     <editor-content class="editor__content" :editor="editor"/>
     <div class="editor__footer">
       <div :class="`editor__status editor__status--${status}`">
@@ -22,7 +26,7 @@
 </template>
 
 <script>
-import {TiptapCollabProvider} from '@hocuspocus/provider'
+
 import CharacterCount from '@tiptap/extension-character-count'
 import Collaboration from '@tiptap/extension-collaboration'
 import CollaborationCursor from '@tiptap/extension-collaboration-cursor'
@@ -34,6 +38,7 @@ import {Editor, EditorContent} from '@tiptap/vue-3'
 import * as Y from 'yjs'
 
 import MenuBar from './MenuBar.vue'
+import {WebrtcProvider} from "y-webrtc";
 
 const getRandomElement = list => {
   return list[Math.floor(Math.random() * list.length)]
@@ -63,19 +68,21 @@ export default {
   },
 
   mounted() {
+    // 初始化变量
     const ydoc = new Y.Doc()
 
-    this.provider = new TiptapCollabProvider({
-      appId: '7j9y6m10',
-      name: this.room,
-      document: ydoc,
-    })
+    this.provider = new WebrtcProvider('file123', ydoc)
 
     this.provider.on('status', event => {
       this.status = event.status
     })
 
     this.editor = new Editor({
+      editorProps: {
+        attributes: {
+          class: 'editor__content',
+        },
+      },
       extensions: [
         StarterKit.configure({
           history: false,
@@ -95,8 +102,12 @@ export default {
         }),
       ],
     })
-
     localStorage.setItem('currentUser', JSON.stringify(this.currentUser))
+    this.editor.css.append(`
+    .ProseMirror:focus {
+      border: none;
+    }
+    `)
   },
 
   methods: {
@@ -146,6 +157,18 @@ export default {
 </script>
 
 <style lang="scss">
+.editor__header__container{
+  /*元素垂直剧中*/
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  /*元素横向居中*/
+  align-items: center;
+  width: 100vw;
+  background: #0D0D0D;
+
+}
+
 .editor {
   background-color: #FFF;
   border: 3px solid #0D0D0D;
@@ -344,6 +367,13 @@ export default {
       }
     }
   }
+}
+.editor__content{
+  border: none;
+}
+
+.editor__content :focus-visible{
+  outline: none;
 }
 
 </style>

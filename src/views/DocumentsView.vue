@@ -122,12 +122,13 @@ function renderIcon(icon){
 .background {
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(45deg, #42b883, #646cff);
+  background: var(--bg-100)
 }
 
 .menu {
   width: 100vw;
   height: 100vh;
+  background: var(--bg-100)
 }
 
 .menu-content {

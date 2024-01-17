@@ -7,7 +7,6 @@ import TemplateView from "../views/doc/TemplateView.vue";
 import PermissionView from "../views/doc/PermissionView.vue";
 import DeletedFileView from "../views/doc/DeletedFileView.vue";
 import UserControlView from "../views/doc/UserControlView.vue";
-import CollaborativeEditorView from "../views/CollaborativeEditorView.vue";
 import TipTapCollabrativeEditor from "../components/editor/TipTapCollabrativeEditor.vue";
 const routes = [
     {
@@ -17,7 +16,8 @@ const routes = [
     },{
         path: '/',
         name: 'HomeView',
-        component: HomeView
+        // component: HomeView
+        component: () => import("../views/doc/Introduce.vue")
     },{
         path: '/doc',
         name: 'DocView',
@@ -43,12 +43,12 @@ const routes = [
                 path: '/user',
                 name: 'UserControlView',
                 component: UserControlView
-            } ,{
-                path: '/collaborative-editing',
-                name: 'CollaborativeEditorView',
-                component: TipTapCollabrativeEditor
             }
         ]
+    } ,{
+        path: '/collaborative-editing',
+        name: 'CollaborativeEditorView',
+        component: TipTapCollabrativeEditor
     }
 ]
 
