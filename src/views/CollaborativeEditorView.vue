@@ -12,7 +12,7 @@ import {onUnmounted} from "vue";
 const route = useRoute()
 const fileId = route.query.fileId
 const userId = Math.random().toString(36).substr(2)
-const websocket = new MyWebsocket(`ws://localhost:8221/websocket/${fileId}/${userId}`)
+// const websocket = new MyWebsocket(`ws://localhost:8221/websocket/${fileId}/${userId}`)
 const ydoc = new Y.Doc()
 
 
@@ -30,14 +30,14 @@ const editor = useEditor({
     })
   ],
 
-  onUpdate: ({editor}) => {
-    websocket.sendMessage(JSON.stringify(editor.getJSON()))
-  },
+  // onUpdate: ({editor}) => {
+  //   websocket.sendMessage(JSON.stringify(editor.getJSON()))
+  // },
 })
 
-onUnmounted(() => {
-  websocket.closeWebSocketConnection()
-})
+// onUnmounted(() => {
+//   websocket.closeWebSocketConnection()
+// })
 
 </script>
 
