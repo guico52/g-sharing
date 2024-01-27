@@ -1,10 +1,29 @@
-.background {
+:root {
+    --primary-100: #333333;
+    --primary-200: #5c5c5c;
+    --primary-300: #b9b9b9;
+    --accent-100: #666666;
+    --accent-200: #f7f7f7;
+    --text-100: #FFFFFF;
+    --text-200: #e0e0e0;
+    --bg-100: #000000;
+    --bg-200: #161616;
+    --bg-300: #2c2c2c;
+}
+
+body{
+    background: var(--bg-100);
+    color: var(--text-100);
+    margin : 0;
+    padding: 0;
+    font-family: 'Noto Sans SC', sans-serif;
+    /*!*元素垂直居中*!*/
     display: flex;
-    flex-direction: column;
+    /*flex-direction: column;*/
     align-items: center;
     justify-content: center;
-    height: 100vh;
-    width: 100vw;
-    /*背景为渐变色*/
-    background: linear-gradient(45deg, #42b883, #646cff);
+    flex-direction: column;
+    overflow:  hidden;
 }
+
+

@@ -1,68 +1,158 @@
-<script setup>
-import {ref} from 'vue'
-import {NButton, NInput, useMessage} from 'naive-ui'
-
-const message = useMessage()
-const login = () => {
-  message.success(`${username.value} 您已发送登录请求`)
-}
-
-// model vars
-const username = ref('')
-const password = ref('')
-
-</script>
-
 <template>
-  <div class="background">
-    <div class="form">
-      <div class="title">this is a login form</div>
-      <n-input class="input" placeholder="账号" v-model:value="username"/>
-      <n-input class="input" placeholder="密码" v-model:value="password" type="password" show-password-on="click"/>
-      <n-button class="button" color="green" @click="login">登录</n-button>
+  <div class="container" >
+    <div class="bubble" style="left: 10%; animation-duration: 8s;"></div>
+    <div class="bubble" style="left: 20%; animation-duration: 5s;"></div>
+    <div class="bubble" style="left: 35%; animation-duration: 7s;"></div>
+    <div class="bubble" style="left: 50%; animation-duration: 10s;"></div>
+    <div class="bubble" style="left: 65%; animation-duration: 6s;"></div>
+    <div class="bubble" style="left: 80%; animation-duration: 8s;"></div>
+    <div class="bubble" style="left: 90%; animation-duration: 9s;"></div>
+
+    <div class="container-inner" :class="{ flipped: isFlipped }">
+      <div class="login-form">
+        <!-- 登录表单 -->
+        <h2>登录</h2>
+        <input type="text" placeholder="用户名" />
+        <input type="password" placeholder="密码" />
+        <div>
+          <button>登录</button>
+          <button @click="toggleFlip">没有账号？去注册</button>
+        </div>
+
+      </div>
+      <div class="register-form">
+        <!-- 注册表单 -->
+        <h2>注册</h2>
+        <input type="text" placeholder="用户名" />
+        <input type="password" placeholder="密码" />
+        <input type="password" placeholder="确认密码" />
+        <div>
+          <button>注册</button>
+          <button @click="toggleFlip">已有账号？去登录</button>
+        </div>
+
+      </div>
     </div>
   </div>
-  <div class="star"></div>
 </template>
-
-
+<script>
+export default {
+  data() {
+    return {
+      isFlipped: false,
+    };
+  },
+  methods: {
+    toggleFlip() {
+      this.isFlipped = !this.isFlipped;
+    },
+  },
+};
+</script>
 <style scoped>
-.background {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
+
+.container {
+  //background-color: transparent;
   width: 100vw;
-  /*背景为渐变色*/
-  background: linear-gradient(45deg, #42b883, #646cff);
-}
-
-.form {
+  height: 100vh;
+  //perspective: 1000px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
   justify-content: center;
-  height: 40vh;
-  width: 40vw;
-  border: #1a1a1a solid 1px;
-  box-shadow: 0 0 10px #1a1a1a;
+  align-items: center;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.container-inner {
+  width: 400px;
+  height: 400px;
+  position: relative;
+
+  text-align: center;
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+
+}
+
+
+.login-form, .register-form {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background: var(--bg-200);
+  color: var(--text-200);
+  border-radius: 20px;
+}
+
+
+.register-form {
+  transform: rotateY(180deg);
+}
+
+.flipped {
+  transform: rotateY(180deg);
+}
+
+input, button {
+  margin: 10px 0;
+  color: var(--text-200);
+  background: var(--primary-100);
   border-radius: 10px;
-
-  /*泛白*/
-  backdrop-filter: blur(10px);
-  /*最小宽度*/
-  min-width: 300px;
-  max-width: 450px;
 }
 
-.input {
-  width: 80%;
-  margin-bottom: 30px;
+input {
+  padding: 10px;
+  border: none;
+  outline: none;
+  width: 220px;
 }
 
-.title {
-  font-size: 20px;
-  margin-bottom: 30px;
+button {
+  padding: 10px 20px;
+  margin: 10px;
+  border: none;
+  outline: none;
+  cursor: pointer;
 }
+/* 现有的样式保持不变 */
+
+/* 动画背景样式 */
+.bubble {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  bottom: -150px;
+  animation: bubbleUp 10s linear infinite;
+}
+
+/* 动画关键帧 */
+@keyframes bubbleUp {
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    bottom: 100%;
+    transform: scale(0.5);
+    opacity: 0;
+  }
+}
+
+
 </style>
+

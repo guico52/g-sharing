@@ -7,7 +7,7 @@ import NavigateBar from "./components/NavigateBar.vue";
 <template>
   <n-message-provider>
     <n-loading-bar-provider>
-      <NavigateBar class="navigate-bar"/>
+<!--      <NavigateBar class="navigate-bar"/>-->
       <router-view class="view"/>
     </n-loading-bar-provider>
   </n-message-provider>
