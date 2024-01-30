@@ -1,7 +1,4 @@
 <template>
-  <div>
-    this is a editor
-  </div>
   <div class="editor" v-if="editor">
     <div class="editor__header__container"><menu-bar class="editor__header" :editor="editor"/></div>
 
@@ -87,7 +84,14 @@ export default {
         },
       },
       onUpdate: ({editor}) => {
-          this.websocketPrivider.sendMessage(JSON.stringify(editor.getJSON()))
+          this.websocketPrivider.sendMessage(
+              JSON.stringify(
+                  {
+                    "type": "content",
+                    "data": editor.getHTML(),
+                    "content": editor.getText()
+                  }
+              ))
       },
       extensions: [
         StarterKit.configure({
@@ -114,6 +118,11 @@ export default {
       border: none;
     }
     `)
+  },
+  watch:{
+    editor: function (newVal, oldVal) {
+      console.log("editor changed, oldVal: ", oldVal, "newVal: ", newVal)
+    }
   },
 
   methods: {
@@ -173,6 +182,7 @@ export default {
   /*元素横向居中*/
   align-items: center;
   width: 100vw;
+
   background: #0D0D0D;
 
 }
@@ -184,7 +194,8 @@ export default {
   color: #0D0D0D;
   display: flex;
   flex-direction: column;
-  max-height: 26rem;
+  height: 100vh;
+  max-height: 100vh;
 
   &__header {
     align-items: center;
@@ -376,12 +387,9 @@ export default {
     }
   }
 }
-.editor__content{
-  border: none;
-}
+
 
 .editor__content :focus-visible{
   outline: none;
 }
-
 </style>
