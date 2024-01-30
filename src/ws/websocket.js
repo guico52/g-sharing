@@ -1,22 +1,30 @@
 export class MyWebsocket {
-    constructor(url, listeners = []) {
+    constructor(url, onOpenCallback, onMessageCallback, onErrorCallback, onCloseCallback) {
         this.socket = new WebSocket(url);
         this.listeners = []
         this.socket.onopen = () => {
             console.log('WebSocket Connected');
+            onOpenCallback();
         };
 
         this.socket.onmessage = (event) => {
             listeners.forEach(listener => listener(event.data));
+            onMessageCallback(event.data);
         };
 
         this.socket.onerror = (error) => {
             console.error('WebSocket Error:', error);
+            onErrorCallback(error);
         };
 
         this.socket.onclose = () => {
             console.log('WebSocket Disconnected');
+            onCloseCallback();
         };
+    }
+
+    on(event, callback){
+        this.socket.on(event, callback);
     }
 
     sendMessage(message) {

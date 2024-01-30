@@ -10,7 +10,7 @@
       <div :class="`editor__status editor__status--${status}`">
         <template v-if="status === 'connected'">
           {{ editor.storage.collaborationCursor.users.length }}
-          user{{ editor.storage.collaborationCursor.users.length === 1 ? '' : 's' }} online in {{ room }}
+          名用户在同时编辑 {{ room }}
         </template>
         <template v-else>
           offline
@@ -39,11 +39,15 @@ import * as Y from 'yjs'
 
 import MenuBar from './MenuBar.vue'
 import {WebrtcProvider} from "y-webrtc";
+import {MyWebsocket} from "../../ws/websocket.js";
 
+
+// 获取随机的数组下标，这个应该要弃用
 const getRandomElement = list => {
   return list[Math.floor(Math.random() * list.length)]
 }
 
+// 获取随机房间，房间号应当是后端传入
 const getRandomRoom = () => {
   return getRandomElement(['Berlin', 'Paris', 'London', 'Madrid', 'Rome'])
 }
@@ -72,16 +76,18 @@ export default {
     const ydoc = new Y.Doc()
 
     this.provider = new WebrtcProvider('file123', ydoc)
+    this.websocketPrivider = new MyWebsocket(`ws://localhost:8221/websocket/file123/123`, () => this.status = 'connected')
+    this.room = "file123"
 
-    this.provider.on('status', event => {
-      this.status = event.status
-    })
 
     this.editor = new Editor({
       editorProps: {
         attributes: {
           class: 'editor__content',
         },
+      },
+      onUpdate: ({editor}) => {
+          this.websocketPrivider.sendMessage(JSON.stringify(editor.getJSON()))
       },
       extensions: [
         StarterKit.configure({
@@ -142,6 +148,7 @@ export default {
       ])
     },
 
+    // 获取随机名字，这个应该要后端传入
     getRandomName() {
       return getRandomElement([
         'Lea Thompson', 'Cyndi Lauper', 'Tom Cruise', 'Madonna', 'Jerry Hall', 'Joan Collins', 'Winona Ryder', 'Christina Applegate', 'Alyssa Milano', 'Molly Ringwald', 'Ally Sheedy', 'Debbie Harry', 'Olivia Newton-John', 'Elton John', 'Michael J. Fox', 'Axl Rose', 'Emilio Estevez', 'Ralph Macchio', 'Rob Lowe', 'Jennifer Grey', 'Mickey Rourke', 'John Cusack', 'Matthew Broderick', 'Justine Bateman', 'Lisa Bonet',
@@ -152,6 +159,7 @@ export default {
   beforeUnmount() {
     this.editor.destroy()
     this.provider.destroy()
+    this.websocketPrivider.closeWebSocketConnection()
   },
 }
 </script>
