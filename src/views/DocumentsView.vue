@@ -22,7 +22,6 @@ const menuOption = ref([
 
     ),
     key: 'header',
-    disabled: true,
   },
   {
     label: () => h(
