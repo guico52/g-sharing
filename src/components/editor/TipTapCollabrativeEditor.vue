@@ -1,7 +1,8 @@
 <template>
   <div class="editor" v-if="editor">
-    <div class="editor__header__container"><menu-bar class="editor__header" :editor="editor"/></div>
-
+    <div class="editor__header__container">
+      <menu-bar class="editor__header" :editor="editor"/>
+    </div>
     <editor-content class="editor__content" :editor="editor"/>
     <div class="editor__footer">
       <div :class="`editor__status editor__status--${status}`">
@@ -73,7 +74,16 @@ export default {
     const ydoc = new Y.Doc()
 
     this.provider = new WebrtcProvider('file123', ydoc)
-    this.websocketPrivider = new MyWebsocket(`ws://localhost:8221/websocket/file123/123`, () => this.status = 'connected')
+    this.websocketPrivider = new MyWebsocket(
+        `ws://localhost:8221/websocket/file123/123`,
+        () => this.status = 'connected',
+        () => {},
+        () => console.error("websocket error"),
+        () => {
+          this.status = 'disconnected';
+        }
+
+    )
     this.room = "file123"
 
 
@@ -88,8 +98,8 @@ export default {
               JSON.stringify(
                   {
                     "type": "content",
-                    "data": editor.getHTML(),
-                    "content": editor.getText()
+                    "html": editor.getHTML(),
+                    "text": editor.getText()
                   }
               ))
       },

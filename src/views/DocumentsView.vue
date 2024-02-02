@@ -1,6 +1,6 @@
 <script setup>
 import {h, ref} from "vue";
-import {NIcon, NLayout, NLayoutSider, NMenu} from "naive-ui";
+import {darkTheme, NIcon, NLayout, NLayoutSider, NMenu} from "naive-ui";
 import {RouterLink} from "vue-router";
 import {
   DocumentsOutline,
@@ -19,7 +19,6 @@ const menuOption = ref([
         'label',
         {class: 'menu-header-item'},
         'welcome to GSharing',
-
     ),
     key: 'header',
   },
@@ -58,7 +57,7 @@ const menuOption = ref([
         }),
     key: 'user',
     icon: renderIcon(AccessibilityOutline)
-  },{
+  }, {
     label: () => h(
         RouterLink,
         {
@@ -71,7 +70,6 @@ const menuOption = ref([
     icon: renderIcon(FileTrayOutline)
   }, {
     label: () => h(
-
         RouterLink,
         {
           class: 'menu-item',
@@ -88,7 +86,7 @@ const handleMenuItemState = item => {
   menuActiveKey.value = item.key
 }
 
-function renderIcon(icon){
+function renderIcon(icon) {
   return () => h(NIcon, null, {default: () => h(icon)})
 }
 </script>
@@ -96,31 +94,36 @@ function renderIcon(icon){
 <template>
   <div class="background">
     <div class="menu">
-      <n-layout has-sider class="menu-sider-container">
-        <n-layout-sider
-            bordered
-            collapse-mode="width"
-            :collapsed-width="64"
-            :width="240"
-            :collapsed="collapsed"
-            show-trigger
-            @collapse="collapsed = !collapsed"
-            @expand="collapsed = !collapsed"
-            class="menu-sider"
-        >
-          <n-menu
-              :options="menuOption"
-              :collapsed="collapsed"
+      <n-config-provider :theme="darkTheme">
+
+
+        <n-layout has-sider class="menu-sider-container">
+          <n-layout-sider
+              bordered
+              collapse-mode="width"
               :collapsed-width="64"
-              :collapsed-icon-size="24"
-              class="menu"
+              :width="240"
+              :collapsed="collapsed"
+              show-trigger
+              @collapse="collapsed = !collapsed"
+              @expand="collapsed = !collapsed"
+              class="menu-sider"
+
           >
-          </n-menu>
-        </n-layout-sider>
-        <n-layout class="menu-content-container">
-          <router-view class="menu-content"/>
+            <n-menu
+                :options="menuOption"
+                :collapsed="collapsed"
+                :collapsed-width="64"
+                :collapsed-icon-size="24"
+                class="menu"
+            >
+            </n-menu>
+          </n-layout-sider>
+          <n-layout class="menu-content-container">
+            <router-view class="menu-content"/>
+          </n-layout>
         </n-layout>
-      </n-layout>
+      </n-config-provider>
     </div>
   </div>
 </template>
@@ -129,36 +132,15 @@ function renderIcon(icon){
 .background {
   width: 100vw;
   height: 100vh;
-  background: var(--bg-100)
 }
 
 .menu {
   width: 100vw;
   height: 100vh;
-  background: var(--bg-100);
-  color:var(--text-100);
 }
 
-.menu-content {
-  width: 100vw;
-  height: 100vh;
-  background: #ffffff;
-}
+.menu-item :hover{
 
-
-.n-menu-item *:hover{
-  color: var(--text-100); /* 或您想要的任何颜色 */
-  cursor: default; /* 防止光标变成手指形状 */
-}
-
-.menu-item:hover{
-  color: var(--text-100);
-  background: var(--bg-200);
-}
-
-/* 覆盖 disabled 项的样式 */
-.n-menu-item--disabled .menu-header-item {
-  color: black; /* 保持与普通菜单项相同的颜色 */
 }
 
 
