@@ -12,8 +12,8 @@
       <div class="login-form">
         <!-- 登录表单 -->
         <h2>登录</h2>
-        <input type="text" placeholder="用户名" />
-        <input type="password" placeholder="密码" />
+        <input :value="this.username" type="text" placeholder="用户名" />
+        <input :value="this.password" type="password" placeholder="密码" />
         <div>
           <button>登录</button>
           <button @click="toggleFlip">没有账号？去注册</button>
@@ -36,16 +36,51 @@
   </div>
 </template>
 <script>
+import { login, register} from "../api/login.js";
+
 export default {
   data() {
     return {
       isFlipped: false,
+      username: '',
+      password: '',
+      registerUsername: '',
+      registerPassword: '',
+      confirmPassword: '',
     };
   },
   methods: {
+    // 翻转表单
     toggleFlip() {
       this.isFlipped = !this.isFlipped;
     },
+
+    // 登录
+    login() {
+      login(this.username, this.password)
+        .then(res => {
+          console.log(res);
+          // 保存token
+          localStorage.setItem('token', res.data.token)
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    },
+    // 注册
+    register() {
+      if(this.registerPassword !== this.confirmPassword) {
+        alert('两次密码不一致')
+        return
+      }
+      register(this.registerUsername, this.registerPassword, this.confirmPassword)
+        .then(res => {
+          console.log(res);
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    }
   },
 };
 </script>

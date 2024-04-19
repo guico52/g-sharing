@@ -3,7 +3,7 @@
 </script>
 
 <template>
-user control view
+user group view
 </template>
 
 <style scoped>

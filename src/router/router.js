@@ -1,13 +1,12 @@
 import {createRouter, createWebHashHistory} from 'vue-router'
 import LoginAndRegisterView from "../views/LoginAndRegisterView.vue";
-import HomeView from "../views/HomeView.vue";
-import DocumentsView from "../views/DocumentsView.vue";
-import FileView from "../views/doc/FileView.vue";
-import TemplateView from "../views/doc/TemplateView.vue";
-import PermissionView from "../views/doc/PermissionView.vue";
-import DeletedFileView from "../views/doc/DeletedFileView.vue";
-import UserControlView from "../views/doc/UserControlView.vue";
 import TipTapCollabrativeEditor from "../components/editor/TipTapCollabrativeEditor.vue";
+import MenuView from "../views/MenuView.vue";
+import ProjectView from "../views/menu/ProjectView.vue";
+import BackupView from "../views/menu/BackupView.vue";
+import PermissionView from "../views/menu/PermissionView.vue";
+import DeletedFileView from "../views/menu/DeletedFileView.vue";
+import MyInfoView from "../views/menu/MyInfoView.vue";
 const routes = [
     {
         path: '/login',
@@ -17,20 +16,20 @@ const routes = [
         path: '/',
         name: 'HomeView',
         // component: HomeView
-        component: () => import("../views/doc/Introduce.vue")
+        component: () => import("../views/Introduce.vue")
     },{
-        path: '/doc',
-        name: 'DocView',
-        component: DocumentsView,
+        path: '/menu',
+        name: 'MenuView',
+        component: MenuView,
         children: [
             {
-                path: '/file',
-                name: 'FileView',
-                component: FileView
+                path: '/project',
+                name: 'ProjectView',
+                component: ProjectView
             }, {
-                path: '/template',
+                path: '/backup',
                 name: 'TemplateView',
-                component: TemplateView
+                component:  BackupView
             } ,{
                 path: '/permission',
                 name: 'PermissionView',
@@ -40,9 +39,13 @@ const routes = [
                 name: 'DeletedFileView',
                 component: DeletedFileView
             } ,{
-                path: '/user',
-                name: 'UserControlView',
-                component: UserControlView
+                path: '/myInfo',
+                name: 'MyInfoView',
+                component: MyInfoView
+            }, {
+                path: '/userGroup',
+                name: 'UserGroupView',
+                component: () => import("../views/menu/UserGroupView.vue")
             }
         ]
     } ,{

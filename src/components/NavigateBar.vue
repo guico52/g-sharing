@@ -5,7 +5,7 @@ const pages = [
     path: '/'
   }, {
     name: '文档',
-    path: '/doc'
+    path: '/menu'
   }
 ]
 </script>

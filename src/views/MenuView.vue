@@ -27,9 +27,9 @@ const menuOption = ref([
         RouterLink,
         {
           class: 'menu-item',
-          to: '/file'
+          to: '/project'
         }, {
-          default: () => '文件'
+          default: () => '项目'
         }
     ),
     key: 'file',
@@ -40,9 +40,9 @@ const menuOption = ref([
         RouterLink,
         {
           class: 'menu-item',
-          to: '/template',
+          to: '/backup',
         }, {
-          default: () => '模板'
+          default: () => '备份'
         }),
     key: 'template',
     icon: renderIcon(DocumentOutline)
@@ -51,9 +51,9 @@ const menuOption = ref([
         RouterLink,
         {
           class: 'menu-item',
-          to: '/user',
+          to: '/userGroup',
         }, {
-          default: () => '用户管理'
+          default: () => '用户组'
         }),
     key: 'user',
     icon: renderIcon(AccessibilityOutline)
@@ -137,10 +137,6 @@ function renderIcon(icon) {
 .menu {
   width: 100vw;
   height: 100vh;
-}
-
-.menu-item :hover{
-
 }
 
 
