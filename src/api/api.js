@@ -11,16 +11,16 @@ const instance = axios.create({
     }
 });
 const message = useMessage();
-const loadingBar = useLoadingBar();
+// const loadingBar = useLoadingBar();
 
 
 instance.interceptors.request.use(
     config => {
-        loadingBar.start();
+        // loadingBar.start();
         return config
     },
     error => {
-        loadingBar.error();
+        // loadingBar.error();
         message.error(error.message)
         return Promise.reject(error)
     }
@@ -28,7 +28,7 @@ instance.interceptors.request.use(
 
 instance.interceptors.response.use(
     resp => {
-        loadingBar.finish();
+        // loadingBar.finish();
         if(resp.status >= 200 && resp.status < 300) {
             return resp
         } else {
@@ -58,6 +58,7 @@ export function get(url, params) {
 
 // 封装axios的post请求
 export function post(url, data) {
+    console.log(message)
     return instance.post(url, data)
 }
 

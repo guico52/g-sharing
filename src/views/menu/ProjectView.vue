@@ -8,6 +8,9 @@
     <n-button>
       添加项目
     </n-button>
+    <n-button>
+      项目成员
+    </n-button>
   </div>
   <div class="project-list">
     <div class="project" v-for="project in projects" :key="project.id">

@@ -15,7 +15,7 @@
         <input :value="this.username" type="text" placeholder="用户名" />
         <input :value="this.password" type="password" placeholder="密码" />
         <div>
-          <button>登录</button>
+          <button @clik="login">登录</button>
           <button @click="toggleFlip">没有账号？去注册</button>
         </div>
 
@@ -57,6 +57,7 @@ export default {
 
     // 登录
     login() {
+      console.log("user login")
       login(this.username, this.password)
         .then(res => {
           console.log(res);
