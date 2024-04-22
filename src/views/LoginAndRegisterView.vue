@@ -7,82 +7,98 @@
     <div class="bubble" style="left: 65%; animation-duration: 6s;"></div>
     <div class="bubble" style="left: 80%; animation-duration: 8s;"></div>
     <div class="bubble" style="left: 90%; animation-duration: 9s;"></div>
+        <div class="container-inner" :class="{ flipped: state.isFlipped }">
+          <div class="login-form">
+            <!-- 登录表单 -->
+            <h2>登录</h2>
+            <n-input class="input" v-model="state.username" type="text" placeholder="用户名" />
+            <n-input class="input" v-model="state.password" type="password" placeholder="密码" />
+            <div>
+              <n-button @click="loginFunc">登录</n-button>
+              <n-button @click="toggleFlip">没有账号？去注册</n-button>
+            </div>
 
-    <div class="container-inner" :class="{ flipped: isFlipped }">
-      <div class="login-form">
-        <!-- 登录表单 -->
-        <h2>登录</h2>
-        <input :value="this.username" type="text" placeholder="用户名" />
-        <input :value="this.password" type="password" placeholder="密码" />
-        <div>
-          <button>登录</button>
-          <button @click="toggleFlip">没有账号？去注册</button>
+          </div>
+          <div class="register-form">
+            <!-- 注册表单 -->
+            <h2>注册</h2>
+            <n-input class="input" v-model="state.registerUsername" type="text" placeholder="用户名" />
+            <n-input class="input" v-model="state.registerPassword" type="password" placeholder="密码" />
+            <n-input class="input" v-model="state.confirmPassword" type="password" placeholder="确认密码" />
+            <div>
+              <n-button @click="registerFunc">注册</n-button>
+              <n-button @click="toggleFlip">已有账号？去登录</n-button>
+            </div>
+          </div>
         </div>
-
-      </div>
-      <div class="register-form">
-        <!-- 注册表单 -->
-        <h2>注册</h2>
-        <input type="text" placeholder="用户名" />
-        <input type="password" placeholder="密码" />
-        <input type="password" placeholder="确认密码" />
-        <div>
-          <button>注册</button>
-          <button @click="toggleFlip">已有账号？去登录</button>
-        </div>
-
-      </div>
-    </div>
   </div>
 </template>
 <script>
 import { login, register} from "../api/login.js";
+import {defineComponent, reactive} from "vue";
+import {router} from "../router/router.js";
+import {NInput, NButton} from "naive-ui";
 
-export default {
-  data() {
-    return {
+export default defineComponent({
+  components: {
+    NInput,
+    NButton
+  },
+  setup() {
+    const state =reactive({
       isFlipped: false,
       username: '',
       password: '',
       registerUsername: '',
       registerPassword: '',
       confirmPassword: '',
+    })
+    const toggleFlip = () => {
+      state.isFlipped = !state.isFlipped;
     };
-  },
-  methods: {
-    // 翻转表单
-    toggleFlip() {
-      this.isFlipped = !this.isFlipped;
-    },
 
-    // 登录
-    login() {
-      login(this.username, this.password)
-        .then(res => {
-          console.log(res);
-          // 保存token
-          localStorage.setItem('token', res.data.token)
-        })
-        .catch(err => {
-          console.log(err);
-        })
-    },
-    // 注册
-    register() {
-      if(this.registerPassword !== this.confirmPassword) {
+    const loginFunc = () => {
+      console.log(state.username)
+      console.log(state.password)
+      login(state.username, state.password)
+          .then(res => {
+            console.log(res);
+            if(res.data.data){
+              localStorage.setItem('token', res.data.token)
+              router.push("/menu")
+            }
+          })
+          .catch(err => {
+            console.log(err);
+          })
+    };
+
+    const registerFunc = () => {
+      console.log(state.registerUsername)
+      console.log(state.registerPassword, state.confirmPassword)
+      if(state.registerPassword !== state.confirmPassword) {
         alert('两次密码不一致')
         return
       }
-      register(this.registerUsername, this.registerPassword, this.confirmPassword)
-        .then(res => {
-          console.log(res);
-        })
-        .catch(err => {
-          console.log(err);
-        })
+      register(state.registerUsername, state.registerPassword, state.confirmPassword)
+          .then(res => {
+            console.log(res);
+          })
+          .catch(err => {
+            console.log(err);
+          })
+    };
+    return {
+      state,
+      toggleFlip,
+      loginFunc,
+      registerFunc
     }
   },
-};
+
+
+
+});
 </script>
 <style scoped>
 
@@ -99,8 +115,8 @@ export default {
 }
 
 .container-inner {
-  width: 400px;
-  height: 400px;
+  width: 30em;
+  height: 30em;
   position: relative;
 
   text-align: center;
@@ -138,18 +154,18 @@ export default {
   transform: rotateY(180deg);
 }
 
-input, button {
-  margin: 10px 0;
+.input, button {
+  margin: 0.5em 0;
   color: var(--text-200);
-  background: var(--primary-100);
   border-radius: 10px;
 }
 
-input {
+.input {
   padding: 10px;
   border: none;
   outline: none;
-  width: 220px;
+  width: 400px;
+  height: 50px;
 }
 
 button {

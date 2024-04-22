@@ -1,18 +1,21 @@
 import axios from 'axios'
-import {useMessage, useLoadingBar} from "naive-ui";
+import {createDiscreteApi} from "naive-ui";
+// import {inject} from "vue";
 
+const BASE_URL = 'http://localhost:8221'
 const instance = axios.create({
-    baseURI: 'http://localhost:8221',
-    timeout: 5000,
     headers: {
         'Authorization': localStorage.getItem('token'),
         'Content-Type': 'application/json;charset=UTF-8',
         'Access-Control-Allow-Origin': '*'
-    }
-});
-const message = useMessage();
-const loadingBar = useLoadingBar();
+    },
+    timeout: 5000,
 
+});
+
+export const {message, loadingBar, dialog} = createDiscreteApi(
+    ['message', 'loadingBar', 'dialog']
+)
 
 instance.interceptors.request.use(
     config => {
@@ -20,59 +23,55 @@ instance.interceptors.request.use(
         return config
     },
     error => {
-        loadingBar.error();
-        message.error(error.message)
-        return Promise.reject(error)
+        loadingBar.finish();
+        return Promise.reject(error);
     }
 )
 
 instance.interceptors.response.use(
     resp => {
         loadingBar.finish();
-        if(resp.status >= 200 && resp.status < 300) {
-            return resp
-        } else {
-            message.error(resp.data.message)
-        }
-    },
-    error => {
-        if(error.response.status){
-            const redirectPath = error.data.redirectPath;
+        // console.log(resp)
+        if(resp.status === 401){
+            const redirectPath = resp.data.redirectPath;
             if(redirectPath) {
                 // 重定向到登录页面
+                message.error('请先登录')
                 VueRouter.push(redirectPath)
+            } else {
+                message.error('未授权的行为')
             }
         }
+        if(resp.data.code >= 500){
+            message.error(resp.data.message)
+        } else {
+            message.success(resp.data.message)
+        }
+        return resp;
+    },
+    error => {
         loadingBar.error();
         message.error(error.message)
-        return Promise.reject(error)
+        return Promise.reject(error);
     }
 )
 
-// 封装axios的get请求
-export function get(url, params) {
-    return instance.get(url, {
-        params
-    })
-}
+
 
 // 封装axios的post请求
 export function post(url, data) {
-    return instance.post(url, data)
+    // console.log(loadingBar)
+    return  instance.post(BASE_URL+url, data)
 }
 
 // 封装axios的put请求
-export function put(url, data) {
-    return instance.put(url, data)
+export async function put(url, data) {
+    return await instance.put(BASE_URL+url, data)
 }
 
 // 封装axios的delete请求
-export function del(url, data) {
-    return instance.delete(url, data)
+export async function del(url, data) {
+    return await instance.delete(BASE_URL+url, data)
 }
 
 
-// 封装axios的并发请求
-export function all(requests) {
-    return instance.all(requests)
-}

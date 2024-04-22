@@ -94,7 +94,6 @@ function renderIcon(icon) {
 <template>
   <div class="background">
     <div class="menu">
-      <n-config-provider :theme="darkTheme">
 
 
         <n-layout has-sider class="menu-sider-container">
@@ -123,7 +122,6 @@ function renderIcon(icon) {
             <router-view class="menu-content"/>
           </n-layout>
         </n-layout>
-      </n-config-provider>
     </div>
   </div>
 </template>
@@ -138,6 +136,7 @@ function renderIcon(icon) {
   width: 100vw;
   height: 100vh;
 }
+
 
 
 </style>

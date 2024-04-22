@@ -1,14 +1,27 @@
-:root {
-    --primary-100: #333333;
-    --primary-200: #5c5c5c;
-    --primary-300: #b9b9b9;
-    --accent-100: #666666;
-    --accent-200: #f7f7f7;
-    --text-100: #FFFFFF;
-    --text-200: #e0e0e0;
-    --bg-100: #000000;
-    --bg-200: #161616;
-    --bg-300: #2c2c2c;
+/*:root {*/
+/*    --primary-100: #333333;*/
+/*    --primary-200: #5c5c5c;*/
+/*    --primary-300: #b9b9b9;*/
+/*    --accent-100: #666666;*/
+/*    --accent-200: #f7f7f7;*/
+/*    --text-100: #FFFFFF;*/
+/*    --text-200: #e0e0e0;*/
+/*    --bg-100: #000000;*/
+/*    --bg-200: #161616;*/
+/*    --bg-300: #2c2c2c;*/
+/*}*/
+:root{
+    --primary-100:#3aad70;
+    --primary-200:#e8f5ee;
+    --primary-300:#f3f3f5;
+    --accent-100:#8BC34A;
+    --accent-200:#286400;
+    --text-100:#333333;
+    --text-200:#5c5c5c;
+    --bg-100:#FFFFFF;
+    --bg-200:#f5f5f5;
+    --bg-300:#cccccc;
+
 }
 
 body{
@@ -25,6 +38,11 @@ body{
     flex-direction: column;
     overflow:  hidden;
     height: 100vh;
+}
+
+.menu-item:hover{
+    /*无背景颜色*/
+    background: transparent;
 }
 
 

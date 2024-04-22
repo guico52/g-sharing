@@ -25,7 +25,7 @@ const routes = [
             {
                 path: '/project',
                 name: 'ProjectView',
-                component: ProjectView
+                component: ProjectView,
             }, {
                 path: '/backup',
                 name: 'TemplateView',
@@ -46,6 +46,10 @@ const routes = [
                 path: '/userGroup',
                 name: 'UserGroupView',
                 component: () => import("../views/menu/UserGroupView.vue")
+            }, {
+                path: '/project/:id',
+                name: 'ProjectDetailView',
+                component: () => import("../views/menu/FileView.vue")
             }
         ]
     } ,{
@@ -59,3 +63,22 @@ export const router = createRouter({
     history: createWebHashHistory(),
     routes
 })
+// 配置路由守卫
+// router.beforeEach(
+//     (to, from, next) => {
+//         const token = localStorage.getItem('token')
+//         if(to.path === '/login') {
+//             if(token) {
+//                 next({path: '/'})
+//             } else {
+//                 next()
+//             }
+//         } else {
+//             if(token) {
+//                 next()
+//             } else {
+//                 next({path: '/login'})
+//             }
+//         }
+//     }
+// )

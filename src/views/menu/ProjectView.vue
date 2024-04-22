@@ -1,42 +1,75 @@
 <template>
   <div class="search-div">
     <n-input class="search-input" round placeholder="搜索">
-      <template #suffix>
-        <n-icon :component="Search" />
-      </template>
+
     </n-input>
-    <n-button>
+    <n-button @click="state.showModal = true; console.log(state.showModal)">
       添加项目
     </n-button>
   </div>
   <div class="project-list">
-    <div class="project" v-for="project in projects" :key="project.id">
+    <div @click="router.push('/project/'+project.id)" class="project" v-for="project in state.projects" :key="project.id">
       <div class="project-name">{{project.name}}</div>
       <div class="project-create-info"> {{project.createBy}} 创建于 {{project.createTime}}</div>
     </div>
   </div>
+  <n-modal v-model:show="state.showModal" class="modal">
+      <template #title>
+        <div >
+          添加项目
+        </div>
+      </template>
+      <template #default>
+
+        <div class="modal-content">
+          <div class="modal-title">
+            添加项目
+          </div>
+          <n-input placeholder="项目名称" class="modal-content-input"></n-input>
+          <n-input type=textarea placeholder="项目描述" class="modal-content-input" style="height: 5em"></n-input>
+          <n-button>添加</n-button>
+        </div>
+      </template>
+  </n-modal>
 
 </template>
 
-<script setup>
-import {ref} from "vue";
-import {NInput,NButton, NCollapse, NCollapseItem} from "naive-ui"
-import {Search} from "@vicons/ionicons5";
+<script>
+import {defineComponent, reactive, ref} from "vue";
+import {NInput, NButton, NModal} from "naive-ui"
+import {router} from "../../router/router.js";
 
-const projects = ref([
-  {
-    "id": 1,
-    "name": "初始项目",
-    "createBy": "root",
-    "createTime": "2024-04-19"
+export default defineComponent({
+  components:{
+    NInput,
+    NButton,
+    NModal
   },
-  {
-    "id": 2,
-    "name": "再一次重建的项目",
-    "createBy": "root",
-    "createTime": "2024-04-19"
+  setup(){
+    const state = reactive({
+      showModal: false,
+      projects :ref([
+        {
+          "id": 1,
+          "name": "初始项目",
+          "createBy": "root",
+          "createTime": "2024-04-19"
+        },
+        {
+          "id": 2,
+          "name": "再一次重建的项目",
+          "createBy": "root",
+          "createTime": "2024-04-19"
+        }
+      ])
+    })
+
+    return {
+      state, router
+    }
   }
-]);
+})
+
 </script>
 
 
@@ -54,7 +87,7 @@ const projects = ref([
 
 .project:hover {
   cursor: pointer;
-  background: var(--bg-200);
+  background: var(--primary-200);
   /*过渡*/
   transition: background 0.3s;
 }
@@ -65,7 +98,7 @@ const projects = ref([
   width: 100vw;
   height: 4em;
   align-items: center;
-  background: var(--bg-300);
+  background: var(--primary-300);
   border-radius: 0.5em;
   margin: 1em;
 }
@@ -91,5 +124,26 @@ const projects = ref([
     right: auto;
   }
 }
+
+.modal{
+  width: 50vw;
+  height: 50vh;
+  background: var(--primary-300);
+}
+.modal, .modal-content, .modal-title{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.modal-content-input{
+  width: 30em;
+}
+
+.modal-content * {
+  margin: 1em;
+}
+
 
 </style>
