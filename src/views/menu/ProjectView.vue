@@ -6,6 +6,9 @@
     <n-button @click="state.showModal = true; console.log(state.showModal)">
       添加项目
     </n-button>
+    <n-button>
+      项目成员
+    </n-button>
   </div>
   <div class="project-list">
     <div @click="router.push('/project/'+project.id)" class="project" v-for="project in state.projects" :key="project.id">
