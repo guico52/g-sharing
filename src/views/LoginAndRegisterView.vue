@@ -64,7 +64,9 @@ export default defineComponent({
           .then(res => {
             console.log(res);
             if(res.data.data){
-              localStorage.setItem('token', res.data.token)
+              console.log(res)
+              console.log(res.data.data)
+              localStorage.setItem('token', res.data.data)
               router.push("/menu")
             }
           })

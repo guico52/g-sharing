@@ -3,11 +3,8 @@
     <n-input class="search-input" round placeholder="搜索">
 
     </n-input>
-    <n-button @click="state.showModal = true; console.log(state.showModal)">
+    <n-button @click="state.showModal = true">
       添加项目
-    </n-button>
-    <n-button>
-      项目成员
     </n-button>
   </div>
   <div class="project-list">
@@ -28,9 +25,10 @@
           <div class="modal-title">
             添加项目
           </div>
-          <n-input placeholder="项目名称" class="modal-content-input"></n-input>
-          <n-input type=textarea placeholder="项目描述" class="modal-content-input" style="height: 5em"></n-input>
-          <n-button>添加</n-button>
+          <n-input v-model:value="state.projectName" placeholder="项目名称" class="modal-content-input"></n-input>
+          <n-input v-model:value="state.projectDescription" type=textarea placeholder="项目描述" class="modal-content-input" style="height: 5em"></n-input>
+          <n-select v-model:value="state.projectUserGroup" placeholder="选择项目组" :options="state.options" class="modal-content-input"></n-select>
+          <n-button @click="handleAddProject">添加</n-button>
         </div>
       </template>
   </n-modal>
@@ -38,37 +36,63 @@
 </template>
 
 <script>
-import {defineComponent, reactive, ref} from "vue";
-import {NInput, NButton, NModal} from "naive-ui"
+import {defineComponent, onMounted, reactive, ref} from "vue";
+import {NInput, NButton, NModal, NSelect} from "naive-ui"
 import {router} from "../../router/router.js";
+import {getProjectList, createProject, getUserGroups} from "../../api/project.js";
 
 export default defineComponent({
   components:{
     NInput,
     NButton,
-    NModal
+    NModal,
+    NSelect
   },
   setup(){
     const state = reactive({
       showModal: false,
-      projects :ref([
-        {
-          "id": 1,
-          "name": "初始项目",
-          "createBy": "root",
-          "createTime": "2024-04-19"
-        },
-        {
-          "id": 2,
-          "name": "再一次重建的项目",
-          "createBy": "root",
-          "createTime": "2024-04-19"
-        }
-      ])
+      projectName: '',
+      projectDescription:'',
+      projectUserGroup: '',
+      projects :[],
+      userGroups: [],
+      options: []
     })
 
+    const handleAddProject = () => {
+      console.log(state)
+      createProject(state.projectName, state.projectDescription, state.projectUserGroup).then(res => {
+        getPageProjectList();
+        state.showModal = false;
+      })
+    }
+
+    const getPageProjectList = () => {
+      getProjectList().then(res => {
+        state.projects = res.data.data;
+      })
+    }
+
+    const getUserGroupList = () => {
+      getUserGroups().then(res => {
+        state.userGroups = res.data.data
+        state.options = state.userGroups.map(group => {
+          return {
+            label: group.name,
+            value: group.id
+          }
+        })
+      })
+    }
+
+    onMounted(() => {
+          getPageProjectList();
+          getUserGroupList();
+        }
+    )
+
     return {
-      state, router
+      state, router, handleAddProject
     }
   }
 })
@@ -129,9 +153,11 @@ export default defineComponent({
 }
 
 .modal{
-  width: 50vw;
+  width: 40vw;
   height: 50vh;
   background: var(--primary-300);
+  border-radius: 10px;
+  min-width: 32vw;
 }
 .modal, .modal-content, .modal-title{
   display: flex;
@@ -147,6 +173,9 @@ export default defineComponent({
 .modal-content * {
   margin: 1em;
 }
-
+.modal-title {
+  font-size: 24px;
+  margin: 1em;
+}
 
 </style>

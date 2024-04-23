@@ -8,7 +8,7 @@
       <div :class="`editor__status editor__status--${status}`">
         <template v-if="status === 'connected'">
           {{ editor.storage.collaborationCursor.users.length }}
-          名用户在同时编辑 {{ room }}
+          名用户在同时编辑
         </template>
         <template v-else>
           offline
@@ -38,19 +38,20 @@ import * as Y from 'yjs'
 import MenuBar from './MenuBar.vue'
 import {WebrtcProvider} from "y-webrtc";
 import {MyWebsocket} from "../../ws/websocket.js";
+import {getFileContent, getUserInfo} from "../../api/file.js";
+import {router} from "../../router/router.js";
 
 
-// 获取随机的数组下标，这个应该要弃用
+// 获取随机的数组下标，用于获取随机的颜色
 const getRandomElement = list => {
   return list[Math.floor(Math.random() * list.length)]
 }
 
-// 获取随机房间，房间号应当是后端传入
-const getRandomRoom = () => {
-  return getRandomElement(['Berlin', 'Paris', 'London', 'Madrid', 'Rome'])
-}
+
+
 
 export default {
+
   components: {
     EditorContent,
     MenuBar,
@@ -58,42 +59,43 @@ export default {
 
   data() {
     return {
-      currentUser: JSON.parse(localStorage.getItem('currentUser')) || {
-        name: this.getRandomName(),
+      currentUser: {
+        name: '',
+        id: '',
         color: this.getRandomColor(),
       },
       provider: null,
       editor: null,
       status: 'connecting',
-      room: getRandomRoom(),
+      room: ''
     }
   },
 
   mounted() {
     // 初始化变量
-    const ydoc = new Y.Doc()
-
-    this.provider = new WebrtcProvider('file123', ydoc)
-    this.websocketPrivider = new MyWebsocket(
-        `ws://localhost:8221/websocket/file123/123`,
-        () => this.status = 'connected',
-        () => {},
-        () => console.error("websocket error"),
-        () => {
-          this.status = 'disconnected';
-        }
-
-    )
-    this.room = "file123"
-
-
-    this.editor = new Editor({
-      editorProps: {
-        attributes: {
-          class: 'editor__content',
+    const ydoc = new Y.Doc();
+    console.log('fileView receive params:', this.$route.query)
+    this.room = this.$route.query.fileId;
+    getUserInfo().then(res => {
+      this.currentUser.name = res.data.data.username;
+      this.currentUser.id = res.data.data.userId;
+      this.provider = new WebrtcProvider(this.room, ydoc);
+      this.websocketPrivider = new MyWebsocket(
+          `ws://localhost:8221/websocket/${this.room}/${this.currentUser.id}`,
+          () => this.status = 'connected',
+          () => {},
+          () => console.error("websocket error"),
+          () => {
+            this.status = 'disconnected';
+          }
+      );
+      this.editor = new Editor({
+        editorProps: {
+          attributes: {
+            class: 'editor__content',
+          },
         },
-      },
-      onUpdate: ({editor}) => {
+        onUpdate: ({editor}) => {
           this.websocketPrivider.sendMessage(
               JSON.stringify(
                   {
@@ -102,36 +104,40 @@ export default {
                     "text": editor.getText()
                   }
               ))
-      },
-      extensions: [
-        StarterKit.configure({
-          history: false,
-        }),
-        Highlight,
-        TaskList,
-        TaskItem,
-        Collaboration.configure({
-          document: ydoc,
-        }),
-        CollaborationCursor.configure({
-          provider: this.provider,
-          user: this.currentUser,
-        }),
-        CharacterCount.configure({
-          limit: 10000,
-        }),
-      ],
-    })
-    localStorage.setItem('currentUser', JSON.stringify(this.currentUser))
-    this.editor.css.append(`
+        },
+        extensions: [
+          StarterKit.configure({
+            history: false,
+          }),
+          Highlight,
+          TaskList,
+          TaskItem,
+          Collaboration.configure({
+            document: ydoc,
+          }),
+          CollaborationCursor.configure({
+            provider: this.provider,
+            user: this.currentUser
+          }),
+          CharacterCount.configure({
+            limit: 10000
+          }),
+        ],
+      });
+      getFileContent(this.room).then(res => {
+        this.editor.commands.setContent(res.data.data.html);
+      })
+      this.editor.css.append(`
     .ProseMirror:focus {
       border: none;
     }
     `)
+    })
+
   },
-  watch:{
+  watch: {
     editor: function (newVal, oldVal) {
-      console.log("editor changed, oldVal: ", oldVal, "newVal: ", newVal)
+      console.log("editor changed, oldVal: ", oldVal, "newVal: ", newVal);
     }
   },
 
@@ -149,10 +155,10 @@ export default {
     },
 
     updateCurrentUser(attributes) {
-      this.currentUser = {...this.currentUser, ...attributes}
-      this.editor.chain().focus().updateUser(this.currentUser).run()
+      this.currentUser = {...this.currentUser, ...attributes};
+      this.editor.chain().focus().updateUser(this.currentUser).run();
 
-      localStorage.setItem('currentUser', JSON.stringify(this.currentUser))
+      localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
     },
 
     getRandomColor() {
@@ -167,12 +173,6 @@ export default {
       ])
     },
 
-    // 获取随机名字，这个应该要后端传入
-    getRandomName() {
-      return getRandomElement([
-        'Lea Thompson', 'Cyndi Lauper', 'Tom Cruise', 'Madonna', 'Jerry Hall', 'Joan Collins', 'Winona Ryder', 'Christina Applegate', 'Alyssa Milano', 'Molly Ringwald', 'Ally Sheedy', 'Debbie Harry', 'Olivia Newton-John', 'Elton John', 'Michael J. Fox', 'Axl Rose', 'Emilio Estevez', 'Ralph Macchio', 'Rob Lowe', 'Jennifer Grey', 'Mickey Rourke', 'John Cusack', 'Matthew Broderick', 'Justine Bateman', 'Lisa Bonet',
-      ])
-    },
   },
 
   beforeUnmount() {
@@ -184,7 +184,7 @@ export default {
 </script>
 
 <style lang="scss">
-.editor__header__container{
+.editor__header__container {
   /*元素垂直剧中*/
   display: flex;
   flex-direction: column;
@@ -399,7 +399,7 @@ export default {
 }
 
 
-.editor__content :focus-visible{
+.editor__content :focus-visible {
   outline: none;
 }
 </style>

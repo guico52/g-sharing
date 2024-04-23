@@ -53,32 +53,26 @@ const routes = [
             }
         ]
     } ,{
-        path: '/collaborative-editing',
-        name: 'CollaborativeEditorView',
-        component: TipTapCollabrativeEditor
+        path: '/fileView',
+        name: 'fileView',
+        component: TipTapCollabrativeEditor,
     }
 ]
 
 export const router = createRouter({
     history: createWebHashHistory(),
+
     routes
 })
-// 配置路由守卫
-// router.beforeEach(
-//     (to, from, next) => {
-//         const token = localStorage.getItem('token')
-//         if(to.path === '/login') {
-//             if(token) {
-//                 next({path: '/'})
-//             } else {
-//                 next()
-//             }
-//         } else {
-//             if(token) {
-//                 next()
-//             } else {
-//                 next({path: '/login'})
-//             }
-//         }
-//     }
-// )
+
+router.beforeEach(
+    (to, from, next) => {
+        const token = localStorage.getItem('token')
+        if (to.name !== 'LoginAndRegisterView' && !token) {
+            next({name: 'LoginAndRegisterView'})
+        } else {
+            console.log(to.params)
+            next()
+        }
+    },
+)

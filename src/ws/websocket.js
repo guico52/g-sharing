@@ -1,4 +1,5 @@
 export class MyWebsocket {
+    listeners;
     constructor(url, onOpenCallback, onMessageCallback, onErrorCallback, onCloseCallback) {
         this.socket = new WebSocket(url);
         this.listeners = []
@@ -8,7 +9,7 @@ export class MyWebsocket {
         };
 
         this.socket.onmessage = (event) => {
-            listeners.forEach(listener => listener(event.data));
+            this.listeners.forEach(listener => listener(event.data));
             onMessageCallback(event.data);
         };
 
