@@ -7,12 +7,8 @@
       添加项目
     </n-button>
   </div>
-  <div class="project-list">
-    <div @click="router.push('/project/'+project.id)" class="project" v-for="project in state.projects" :key="project.id">
-      <div class="project-name">{{project.name}}</div>
-      <div class="project-create-info"> {{project.createBy}} 创建于 {{project.createTime}}</div>
-    </div>
-  </div>
+  <n-data-table :columns="state.tableColumns" :data="state.projects" :row-props="rowProps"/>
+
   <n-modal v-model:show="state.showModal" class="modal">
       <template #title>
         <div >
@@ -37,7 +33,7 @@
 
 <script>
 import {defineComponent, onMounted, reactive, ref} from "vue";
-import {NInput, NButton, NModal, NSelect} from "naive-ui"
+import {NInput, NButton, NModal, NSelect, NDataTable} from "naive-ui"
 import {router} from "../../router/router.js";
 import {getProjectList, createProject, getUserGroups} from "../../api/project.js";
 
@@ -46,7 +42,8 @@ export default defineComponent({
     NInput,
     NButton,
     NModal,
-    NSelect
+    NSelect,
+    NDataTable
   },
   setup(){
     const state = reactive({
@@ -54,6 +51,19 @@ export default defineComponent({
       projectName: '',
       projectDescription:'',
       projectUserGroup: '',
+      tableColumns: [
+        {
+          title: '项目名称',
+          key: 'name'
+        },
+        {
+          title: '创建者',
+          key: 'createBy'
+        }, {
+          title: '创建时间',
+          key: 'createTime'
+        }
+      ],
       projects :[],
       userGroups: [],
       options: []
@@ -70,6 +80,7 @@ export default defineComponent({
     const getPageProjectList = () => {
       getProjectList().then(res => {
         state.projects = res.data.data;
+        console.log(state.projects)
       })
     }
 
@@ -84,6 +95,12 @@ export default defineComponent({
         })
       })
     }
+    const rowProps = row=> {
+      return {
+        style: "cursor: pointer;",
+        onClick: () => router.push('/project/' + row.id)
+      }
+    }
 
     onMounted(() => {
           getPageProjectList();
@@ -92,7 +109,7 @@ export default defineComponent({
     )
 
     return {
-      state, router, handleAddProject
+      state, router, handleAddProject, rowProps
     }
   }
 })

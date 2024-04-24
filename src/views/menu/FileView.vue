@@ -3,17 +3,12 @@
   <div class="search-content">
     <n-input class="search-input" round placeholder="搜索"/>
     <n-button @click="state.showModal = true">添加文件</n-button>
+    <n-button @click="state.projectTeamShow = true">项目成员</n-button>
   </div>
-  <div class="file-content">
-    <div @click="gotoFile(item.fileId)" v-for="item in state.fileList" :key="item.id" class="file-list">
-      <div class="file-name">{{item.fileName}}</div>
-      <div class="file-info">{{item.createBy}} 创建于 {{item.createTime}}</div>
-    </div>
-  </div>
+  <n-data-table :columns="state.tableColumns" :data="state.fileList" :row-props="tableProps"/>
 
   <n-modal v-model:show="state.showModal" class="modal">
     <template #title>
-
     </template>
     <template #default>
       <div class="modal-content">
@@ -25,6 +20,21 @@
       </div>
     </template>
   </n-modal>
+  <n-modal v-model:show="state.projectTeamShow" class="project-modal">
+    <template #title>
+    </template>
+    <template #default>
+      <div class="project-modal-content">
+        <div class="project-modal-content-title">
+          成员管理
+        </div>
+        <div>
+
+        </div>
+
+      </div>
+    </template>
+  </n-modal>
 </div>
 </template>
 
@@ -33,7 +43,7 @@ import {defineComponent, onMounted, reactive} from "vue";
 import {router} from "../../router/router.js";
 import {getProjectDetail} from "../../api/project.js";
 import {addFile} from "../../api/file.js";
-import {NInput, NButton, NModal} from "naive-ui";
+import {NInput, NButton, NModal, NDataTable} from "naive-ui";
 
 export default defineComponent({
   methods: {
@@ -41,7 +51,7 @@ export default defineComponent({
       return router
     },
     gotoFile(id) {
-      router.push({name: 'fileView', query: {fileId: id}})
+
     },
     addFile() {
       const projectId = router.currentRoute.value.params.id;
@@ -58,14 +68,40 @@ export default defineComponent({
   components:{
     NInput,
     NButton,
-    NModal
+    NModal,
+    NDataTable
   },
   setup(){
     const state = reactive({
+      tableColumns: [
+        {
+          title: '文件名称',
+          key: 'fileName'
+        },
+        {
+          title: '创建者',
+          key: 'createBy'
+        },
+        {
+          title: '创建时间',
+          key: 'createTime'
+        }
+      ],
       fileList: [],
       modalShow: false,
+      projectTeamShow: false,
       fileName: '',
     })
+    const tableProps = (row) =>{
+      return {
+        style: {
+          cursor: 'pointer'
+        },
+        onClick: () => {
+          router.push({name: 'fileView', query: {fileId: row.fileId}})
+        }
+      }
+    }
 
     onMounted(() => {
       // 获取路径
@@ -75,7 +111,7 @@ export default defineComponent({
       })
     })
     return {
-      state
+      state, tableProps
     }
   }
 })
@@ -92,46 +128,6 @@ export default defineComponent({
 }
 .search-content .search-input{
   width: 60%
-}
-
-.file-list:hover {
-  cursor: pointer;
-  background: var(--primary-200);
-  /*过渡*/
-  transition: background 0.3s;
-}
-/* project 只占一行*/
-.file-list{
-  display: flex;
-  overflow-x: auto;
-  width: 100vw;
-  height: 4em;
-  align-items: center;
-  background: var(--primary-300);
-  border-radius: 0.5em;
-  margin: 1em;
-}
-
-.file-name {
-  font-size: 24px;
-  margin-left: 2em;
-}
-
-.file-info {
-  position: absolute;
-  font-size: 20px;
-  right: 5em;
-}
-@media screen and (max-width: 50em) {
-  .file-list {
-    flex-direction: column;
-    height: auto; /* 你可能需要调整高度以适应堆叠的内容 */
-  }
-
-  .file-info {
-    position: static;
-    right: auto;
-  }
 }
 
 .modal{
@@ -155,7 +151,7 @@ export default defineComponent({
 .modal-content * {
   margin: 1em;
 }
-.modal-title {
+.modal-title , .project-modal-content-title{
   font-size: 24px;
   margin: 1em;
 }

@@ -1,7 +1,6 @@
 import axios from 'axios'
 import {createDiscreteApi} from "naive-ui";
-// import {inject} from "vue";
-
+// import {inject} from "vue"
 const BASE_URL = 'http://localhost:8221'
 const instance = axios.create({
     headers: {

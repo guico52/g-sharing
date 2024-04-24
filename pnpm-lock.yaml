@@ -44,6 +44,9 @@ dependencies:
   chalk:
     specifier: ^5.3.0
     version: 5.3.0
+  loadsh:
+    specifier: ^0.0.4
+    version: 0.0.4
   remixicon:
     specifier: ^3.5.0
     version: 3.5.0
@@ -1250,6 +1253,11 @@ packages:
     resolution: {integrity: sha512-C7bfi1UZmoj8+PQx22XyeXCuBlokoyWQL5pWSP+EI6nzRylyThouddufc2c1NDIcP9k5agmN9fLpA7VNJfIiqw==}
     dependencies:
       uc.micro: 1.0.6
+    dev: false
+
+  /loadsh@0.0.4:
+    resolution: {integrity: sha512-U+wLL8InpfRalWrr+0SuhWgGt10M4OyAk6G8xCYo2rwpiHtxZkWiFpjei0vO463ghW8LPCdhqQxXlMy2qicAEw==}
+    deprecated: This is a typosquat on the popular Lodash package. This is not maintained nor is the original Lodash package.
     dev: false
 
   /lodash-es@4.17.21:
