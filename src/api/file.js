@@ -11,3 +11,11 @@ export function getFileContent(id) {
 export function addFile(name, projectId) {
     return post("/file/add", {name: name, projectId: projectId})
 }
+
+export function deleteFile(id) {
+    return post("/file/delete", {id: id})
+}
+
+export function updateFile(id, name){
+    return post("/file/update", {id: id, name: name})
+}

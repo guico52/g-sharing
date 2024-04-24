@@ -43,8 +43,6 @@ instance.interceptors.response.use(
         }
         if(resp.data.code >= 500){
             message.error(resp.data.message)
-        } else {
-            message.success(resp.data.message)
         }
         return resp;
     },

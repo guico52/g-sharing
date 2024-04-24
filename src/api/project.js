@@ -16,3 +16,15 @@ export function getUserGroups(){
     return post("/userGroup/list")
 }
 
+export function deleteProject(id){
+    return post("/project/delete", {id: id})
+}
+
+export function updateProject(id, name, description){
+    return post("/project/update", {
+        id: id,
+        name: name,
+        description: description,
+})
+}
+

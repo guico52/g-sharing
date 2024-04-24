@@ -5,8 +5,7 @@
     <n-button @click="state.showModal = true">添加文件</n-button>
     <n-button @click="state.projectTeamShow = true">项目成员</n-button>
   </div>
-  <n-data-table :columns="state.tableColumns" :data="state.fileList" :row-props="tableProps"/>
-
+    <n-data-table :columns="state.tableColumns" :data="state.fileList" :row-props="tableProps"/>
   <n-modal v-model:show="state.showModal" class="modal">
     <template #title>
     </template>
@@ -39,19 +38,16 @@
 </template>
 
 <script>
-import {defineComponent, onMounted, reactive} from "vue";
+import {defineComponent, h, onMounted, reactive} from "vue";
 import {router} from "../../router/router.js";
 import {getProjectDetail} from "../../api/project.js";
-import {addFile} from "../../api/file.js";
-import {NInput, NButton, NModal, NDataTable} from "naive-ui";
+import {addFile, deleteFile} from "../../api/file.js";
+import {NInput, NButton, NModal, NDataTable, NDropdown} from "naive-ui";
 
 export default defineComponent({
   methods: {
     router() {
       return router
-    },
-    gotoFile(id) {
-
     },
     addFile() {
       const projectId = router.currentRoute.value.params.id;
@@ -62,16 +58,28 @@ export default defineComponent({
             })
           }
       )
-    }
+    },
+
 
   },
   components:{
     NInput,
     NButton,
     NModal,
-    NDataTable
+    NDataTable,
+    NDropdown
   },
   setup(){
+    const handleDeleteFile = (id) => {
+      console.log("delete file id: ", id)
+      deleteFile(id).then(
+          () => {
+            getProjectDetail(router.currentRoute.value.params.id).then(res => {
+              state.fileList = res.data.data;
+            })
+          }
+      )
+    }
     const state = reactive({
       tableColumns: [
         {
@@ -85,6 +93,16 @@ export default defineComponent({
         {
           title: '创建时间',
           key: 'createTime'
+        },{
+          title: '操作',
+          key: 'action',
+          render: (row) => {
+            return h('div', {}, [
+                h(NButton, {onClick:() => handleDeleteFile(row.fileId)}, '删除'),
+                h(NButton, {onClick:() => router.push({name: 'fileView', query: {fileId: row.fileId}})}, '编辑'),
+                ]
+            )
+          }
         }
       ],
       fileList: [],
@@ -92,16 +110,6 @@ export default defineComponent({
       projectTeamShow: false,
       fileName: '',
     })
-    const tableProps = (row) =>{
-      return {
-        style: {
-          cursor: 'pointer'
-        },
-        onClick: () => {
-          router.push({name: 'fileView', query: {fileId: row.fileId}})
-        }
-      }
-    }
 
     onMounted(() => {
       // 获取路径
@@ -111,7 +119,7 @@ export default defineComponent({
       })
     })
     return {
-      state, tableProps
+      state
     }
   }
 })
@@ -133,7 +141,7 @@ export default defineComponent({
 .modal{
   width: 40vw;
   height: 25vh;
-  background: var(--primary-300);
+  background: var(--bg-100);
   border-radius: 10px;
   min-width: 32vw;
 }
