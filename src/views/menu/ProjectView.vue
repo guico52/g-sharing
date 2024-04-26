@@ -98,7 +98,7 @@ export default defineComponent({
     const rowProps = row=> {
       return {
         style: "cursor: pointer;",
-        onClick: () => router.push('/project/' + row.id)
+        onClick: () => router.push({path: `/project/${row.id}`})
       }
     }
 

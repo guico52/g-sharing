@@ -1,4 +1,4 @@
-import {post} from './api.js'
+import {post, download} from './api.js'
 
 export function getUserInfo(){
     return post("/user/userInfo")
@@ -18,4 +18,12 @@ export function deleteFile(id) {
 
 export function updateFile(id, name){
     return post("/file/update", {id: id, name: name})
+}
+
+export function exportFile(id) {
+    return download("/file/export", {id: id})
+}
+
+export function search(id, keyword) {
+    return post("/file/search", {id: id, content: keyword})
 }

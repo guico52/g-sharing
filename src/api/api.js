@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {createDiscreteApi} from "naive-ui";
 // import {inject} from "vue"
-const BASE_URL = 'http://localhost:8221'
+export const BASE_URL = 'http://localhost:8221'
 const instance = axios.create({
     headers: {
         'Authorization': localStorage.getItem('token'),
@@ -15,10 +15,20 @@ const instance = axios.create({
 export const {message, loadingBar, dialog} = createDiscreteApi(
     ['message', 'loadingBar', 'dialog']
 )
+// 在请求发送之前做一些事情
 
 instance.interceptors.request.use(
     config => {
         loadingBar.start();
+        // 如果有token，就加到请求头上
+        const token = localStorage.getItem('token')
+        if(token){
+            console.log("token exist")
+            config.headers.Authorization = token
+            console.log(config.headers)
+        } else {
+            console.log("token not exist")
+        }
         return config
     },
     error => {
@@ -61,14 +71,20 @@ export function post(url, data) {
     return  instance.post(BASE_URL+url, data)
 }
 
-// 封装axios的put请求
-export async function put(url, data) {
-    return await instance.put(BASE_URL+url, data)
+export function download(url, data){
+    return instance.post(BASE_URL+url, data, {responseType: 'blob'}).then(
+        resp => {
+            message.info('下载成功')
+            const blob = new Blob([resp.data], {type: 'application/octet-stream'})
+            const downloadElement = document.createElement('a')
+            const href = window.URL.createObjectURL(blob)
+            downloadElement.href = href
+            console.log(resp.headers)
+            downloadElement.download = "file.docx"
+            document.body.appendChild(downloadElement)
+            downloadElement.click()
+            document.body.removeChild(downloadElement)
+            window.URL.revokeObjectURL(href)
+        }
+    )
 }
-
-// 封装axios的delete请求
-export async function del(url, data) {
-    return await instance.delete(BASE_URL+url, data)
-}
-
-

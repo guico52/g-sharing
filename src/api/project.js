@@ -28,3 +28,7 @@ export function updateProject(id, name, description){
 })
 }
 
+export function search(keyword) {
+    return post("/project/search", {content: keyword})
+}
+

@@ -48,7 +48,7 @@ const routes = [
                 component: () => import("../views/menu/UserGroupView.vue")
             }, {
                 path: '/project/:id',
-                name: 'ProjectDetailView',
+                name: 'FileView',
                 component: () => import("../views/menu/FileView.vue")
             }
         ]
@@ -61,13 +61,13 @@ const routes = [
 
 export const router = createRouter({
     history: createWebHashHistory(),
-
     routes
 })
 
 router.beforeEach(
     (to, from, next) => {
         const token = localStorage.getItem('token')
+        console.log(token)
         if (to.name !== 'LoginAndRegisterView' && !token) {
             next({name: 'LoginAndRegisterView'})
         } else {

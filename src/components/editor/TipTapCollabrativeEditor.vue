@@ -125,6 +125,7 @@ export default {
         ],
       });
       getFileContent(this.room).then(res => {
+        console.log(res.data.data.html)
         this.editor.commands.setContent(res.data.data.html);
       })
       this.editor.css.append(`
