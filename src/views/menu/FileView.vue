@@ -10,7 +10,7 @@
           <n-input @focus="state.showDropdown = true"
                    @input="searchFile"
                    @blur="state.showDropdown = false; state.dropdownOptions = []"
-                    v-model:value="state.input"
+                   v-model:value="state.input"
                    class="search-input"
                    round
                    placeholder="搜索"/>
@@ -30,7 +30,32 @@
 
 
     </div>
-    <n-data-table :columns="state.tableColumns" :data="state.fileList"/>
+    <n-data-table :columns="state.tableColumns" :data="state.fileList">
+      <template #default="{row}">
+        <div>{{row.fileName}}</div>
+        <div>
+          <n-button
+            @click="handleDeleteFile(row.fileId)"
+            v-pms-file="UserFilePermissionEnum.ADMIN"
+          >
+            删除
+          </n-button>
+          <n-button
+            @click="$router.push({name: 'fileView', query: {fileId: row.fileId}})"
+            v-pms-file="UserFilePermissionEnum.READ_ONLY"
+          >
+            浏览
+          </n-button>
+          <n-button
+            @click="handleExportFile(row.fileId)"
+            v-pms-file="UserFilePermissionEnum.READ_ONLY"
+          >
+            导出
+          </n-button>
+        </div>
+
+      </template>
+    </n-data-table>
     <n-modal v-model:show="state.showModal" class="modal">
       <template #title>
       </template>
@@ -50,12 +75,18 @@
 <script>
 import {defineComponent, h, onMounted, reactive, toRefs} from "vue";
 import {router} from "../../router/router.js";
-import {BASE_URL, message} from "../../api/api.js";
+import {BASE_URL} from "../../api/api.js";
 import {getProjectDetail} from "../../api/project.js";
 import {addFile, deleteFile, exportFile, search} from "../../api/file.js";
-import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload} from "naive-ui";
+import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload, NPopconfirm} from "naive-ui";
+import {UserFilePermissionEnum} from '../../util/enums.js'
 
 export default defineComponent({
+  computed: {
+    UserFilePermissionEnum() {
+      return UserFilePermissionEnum
+    }
+  },
   methods: {
     router() {
       return router
@@ -76,7 +107,7 @@ export default defineComponent({
         this.state.fileList = res.data.data;
       })
     },
-    handleDropSelected(key){
+    handleDropSelected(key) {
       router.push({name: 'fileView', query: {fileId: key}})
     },
     searchFile() {
@@ -97,7 +128,6 @@ export default defineComponent({
         contentResult.forEach(item => {
           this.state.dropdownOptions.push({key: item.id, label: item.name, highlighted: item.highlighted})
         })
-
       })
     }
 
@@ -109,7 +139,8 @@ export default defineComponent({
     NModal,
     NDataTable,
     NDropdown,
-    NUpload
+    NUpload,
+    NPopconfirm
   },
   setup() {
     const handleDeleteFile = (id) => {
@@ -144,9 +175,22 @@ export default defineComponent({
           key: 'action',
           render: (row) => {
             return h('div', {}, [
-                  h(NButton, {onClick: () => handleDeleteFile(row.fileId)}, '删除'),
-                  h(NButton, {onClick: () => router.push({name: 'fileView', query: {fileId: row.fileId}})}, '编辑'),
-                  h(NButton, {onClick: () => handleExportFile(row.fileId)}, '导出')
+                  h(NButton, {
+                    onClick: () => handleDeleteFile(row.fileId),
+                    pmsFile: UserFilePermissionEnum.ADMIN
+                  }, '删除'),
+                  h(NButton, {
+                    onClick: () => router.push({name: 'fileView', query: {fileId: row.fileId}}),
+                    pmsFile: UserFilePermissionEnum.READ_ONLY
+                  }, '浏览'),
+                  h(NButton, {
+                    onClick: () => handleExportFile(row.fileId),
+                    pmsFile: UserFilePermissionEnum.READ_ONLY
+                  }, '导出'),
+                  h(NButton, {
+                    onClick: () => null,
+                    pmsFile: UserFilePermissionEnum.ADMIN
+                  }, '设置权限')
                 ]
             )
           }
@@ -163,7 +207,7 @@ export default defineComponent({
       headers: {
         Authorization: localStorage.getItem('token')
       },
-      input : '',
+      input: '',
       showDropdown: false,
       dropdownOptions: []
 
@@ -178,7 +222,7 @@ export default defineComponent({
 
     })
     return {
-      state, stateToRefs
+      state, stateToRefs, handleExportFile, handleDeleteFile
     }
   }
 })

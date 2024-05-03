@@ -11,8 +11,8 @@
           <div class="login-form">
             <!-- 登录表单 -->
             <h2>登录</h2>
-            <n-input class="input" v-model="state.username" type="text" placeholder="用户名" />
-            <n-input class="input" v-model="state.password" type="password" placeholder="密码" />
+            <n-input class="input" v-model:value="state.username" type="text" placeholder="用户名" />
+            <n-input class="input" v-model:value="state.password" type="password" placeholder="密码" />
             <div>
               <n-button @click="loginFunc">登录</n-button>
               <n-button @click="toggleFlip">没有账号？去注册</n-button>
@@ -22,9 +22,9 @@
           <div class="register-form">
             <!-- 注册表单 -->
             <h2>注册</h2>
-            <n-input class="input" v-model="state.registerUsername" type="text" placeholder="用户名" />
-            <n-input class="input" v-model="state.registerPassword" type="password" placeholder="密码" />
-            <n-input class="input" v-model="state.confirmPassword" type="password" placeholder="确认密码" />
+            <n-input class="input" v-model:value="state.registerUsername" type="text" placeholder="用户名" />
+            <n-input class="input" v-model:value="state.registerPassword" type="password" placeholder="密码" />
+            <n-input class="input" v-model:value="state.confirmPassword" type="password" placeholder="确认密码" />
             <div>
               <n-button @click="registerFunc">注册</n-button>
               <n-button @click="toggleFlip">已有账号？去登录</n-button>
@@ -66,7 +66,7 @@ export default defineComponent({
             if(res.data.data){
               console.log(res)
               console.log(res.data.data)
-              localStorage.setItem('token', res.data.data)
+              localStorage.setItem('token', res.data.data.token)
               router.push("/menu")
             }
           })

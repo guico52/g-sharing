@@ -5,7 +5,7 @@ export function getProjectList() {
 }
 
 export function getProjectDetail(id) {
-    return post("/project/detail", {id})
+    return post("/project/detail", {id: id})
 }
 
 export function createProject(name, description, userGroupId) {

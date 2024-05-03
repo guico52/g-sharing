@@ -7,6 +7,7 @@ import BackupView from "../views/menu/BackupView.vue";
 import PermissionView from "../views/menu/PermissionView.vue";
 import DeletedFileView from "../views/menu/DeletedFileView.vue";
 import MyInfoView from "../views/menu/MyInfoView.vue";
+import CollaborativeEditorView from "../views/CollaborativeEditorView.vue";
 const routes = [
     {
         path: '/login',
@@ -28,7 +29,7 @@ const routes = [
                 component: ProjectView,
             }, {
                 path: '/backup',
-                name: 'TemplateView',
+                name: 'BackupView',
                 component:  BackupView
             } ,{
                 path: '/permission',
@@ -50,12 +51,20 @@ const routes = [
                 path: '/project/:id',
                 name: 'FileView',
                 component: () => import("../views/menu/FileView.vue")
-            }
+            }, {
+                path:'/backup/:id',
+                name: 'BackupDetailView',
+                component: () => import("../views/menu/BackupDetailView.vue")
+            },
         ]
     } ,{
         path: '/fileView',
         name: 'fileView',
         component: TipTapCollabrativeEditor,
+    }, {
+        path: '/backup/detail/:id',
+        name: 'backupFileView',
+        component: CollaborativeEditorView
     }
 ]
 
