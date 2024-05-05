@@ -7,11 +7,8 @@
     <n-data-table :columns="columns" :data="data">
     </n-data-table>
   </div>
-  <n-modal :show="showModal">
+  <n-modal v-model:show="showModal">
     <template #title>
-      <div>
-        添加用户组
-      </div>
     </template>
     <template #default>
       <div class="permission-content">
@@ -22,9 +19,9 @@
 
 </template>
 <script setup>
-import {NInput, NButton, NDataTable, NModal, NCheckbox, NSpace} from "naive-ui"
+import {NInput, NButton, NDataTable, NModal, NRadio, NRadioGroup, NSpace} from "naive-ui"
 import {h, onMounted, ref} from "vue";
-import {list} from "../../api/usergroup.js";
+import {list, detail} from "../../api/usergroup.js";
 
 const columns = ref([
   {
@@ -39,13 +36,16 @@ const columns = ref([
     render: (row) => {
       return [
         h(NButton, {onClick: () => {
-
           showModal.value = true;
+          detail(row.id).then(
+              res => {
+                groupDetail.value = res.data.data
+              })
         }}, '浏览')
       ]
     }
   }
-]);
+])
 const data = ref([]);
 const showModal = ref(false);
 const groupDetail = ref([]);
@@ -61,6 +61,7 @@ const radioOptions =ref([
     value: 3
   }
 ])
+const radioValue = ref(1);
 const detailColumns = ref([
   {
     title: '用户名',
@@ -69,8 +70,16 @@ const detailColumns = ref([
     title: '权限',
     key: 'permission',
     render: (row) => {
-      return h( NSpace, null , {
-
+      return h( NRadioGroup, {value: radioOptions} , {
+          default: () => {
+            return h(NSpace, null, {
+              default: () => {
+                return radioOptions.value.map(option => {
+                  return h(NRadio, {value: option.value}, {default: () => option.label})
+                })
+              }
+            })
+          }
       })
     }
   }
@@ -88,5 +97,8 @@ onMounted(
 <style scoped>
 .permission-content {
   width: 35em;
+  background: var(--bg-200);
+  padding: 1em;
+  border-radius: 0.5em;
 }
 </style>

@@ -53,11 +53,5 @@ onMounted(() => {
   }
 </script>
 <style scoped>
-.search-content {
-  display: flex;
-  justify-content: space-between;
-}
-.search-content, .search-content * {
-  margin: 0.5em;
-}
+
 </style>
