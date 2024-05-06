@@ -3,6 +3,9 @@
     <n-input class="search-input" round placeholder="搜索">
 
     </n-input>
+    <n-button>
+      搜索
+    </n-button>
     <n-button @click="state.showModal = true">
       添加项目
     </n-button>

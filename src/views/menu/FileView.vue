@@ -3,10 +3,10 @@
     <div class="search-content">
       <div class="search-content-inner">
         <!--当输入框有值且焦点在输入框上时，显示下拉框-->
-        <n-dropdown :show="state.input.length>0 && state.showDropdown && state.dropdownOptions"
-                    :options="state.dropdownOptions"
-                    @select="handleDropSelected"
-        >
+<!--        <n-dropdown :show="state.input.length>0 && state.showDropdown && state.dropdownOptions"-->
+<!--                    :options="state.dropdownOptions"-->
+<!--                    @select="handleDropSelected"-->
+<!--        >-->
           <n-input @focus="state.showDropdown = true"
                    @input="searchFile"
                    @blur="state.showDropdown = false; state.dropdownOptions = []"
@@ -14,7 +14,9 @@
                    class="search-input"
                    round
                    placeholder="搜索"/>
-        </n-dropdown>
+
+<!--        </n-dropdown>-->
+        <n-button @click="searchFile">搜索</n-button>
         <n-button @click="state.showModal = true">添加文件</n-button>
       </div>
       <div class="upload-content">

@@ -1,7 +1,7 @@
 <template>
   <div class="search-content">
-    <n-input/>
-    <n-button @click="showModal=true"/>
+    <n-input round/>
+    <n-button @click="showModal=true">搜索</n-button>
   </div>
   <div class="content">
     <n-data-table :columns="columns" :data="data">
@@ -51,7 +51,7 @@ const columns = ref([
     title: '操作',
     key: 'action',
     render: (row) => {
-      return [
+      return h(NSpace, {} ,[
         h(NButton,{onClick: () => {
           dialog.create({
             title: '重命名用户组',
@@ -93,7 +93,7 @@ const columns = ref([
                   groupDetail.value = res.data.data
                 })
           }}, '浏览'),
-      ]
+      ])
     }
   }
 ])
@@ -151,5 +151,14 @@ onMounted(
   background: var(--bg-200);
   padding: 1em;
   border-radius: 0.5em;
+}
+.search-content {
+  display: flex;
+  justify-content: flex-end;
+  margin: 1em;
+}
+
+.search-content * {
+  margin: 1em;
 }
 </style>

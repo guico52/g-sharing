@@ -2,7 +2,7 @@
 
 <template>
     <div class="search-content">
-      <n-input v-model="input" round/>
+      <n-input placeholder="请输入文件名" v-model="input" round/>
       <n-button>搜索</n-button>
     </div>
     <div class="backup-content">
@@ -53,5 +53,12 @@ onMounted(() => {
   }
 </script>
 <style scoped>
-
+  .search-content{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .search-content * {
+    margin: 1em;
+  }
 </style>

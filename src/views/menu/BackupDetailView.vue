@@ -1,8 +1,9 @@
 <template>
-  <div>
-    <n-input>
+  <div class="search-content">
 
-    </n-input>
+      <n-input round placeholder="搜索备份"/>
+      <n-button>搜索</n-button>
+
   </div>
   <div>
     <n-data-table :columns="columns" :data="data">
@@ -11,7 +12,7 @@
 </template>
 
 <script setup>
-import {NInput, NButton, NDataTable} from "naive-ui";
+import {NInput, NButton, NDataTable, NSpace} from "naive-ui";
 import {h, onMounted, ref} from "vue";
 import {backupFileList, exportBackupFile} from "../../api/backup.js";
 import {useRouter} from "vue-router";
@@ -27,7 +28,7 @@ const columns = ref([
     title: '操作',
     key: 'action',
     render: (row) => {
-      return [
+      return h(NSpace, {}, [
         h(NButton, {
           onClick: () => {
             console.log(row.id)
@@ -38,8 +39,7 @@ const columns = ref([
           onClick: () => {
             exportBackupFile(row.id)
           }}, '导出')
-
-      ]
+      ])
     }
   }
 ])
@@ -56,5 +56,12 @@ onMounted(() => {
 
 </script>
 <style scoped>
-
+.search-content{
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+.search-content * {
+  margin: 1em;
+}
 </style>
