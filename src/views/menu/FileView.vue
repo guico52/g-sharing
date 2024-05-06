@@ -2,11 +2,6 @@
   <div class="content">
     <div class="search-content">
       <div class="search-content-inner">
-        <!--当输入框有值且焦点在输入框上时，显示下拉框-->
-<!--        <n-dropdown :show="state.input.length>0 && state.showDropdown && state.dropdownOptions"-->
-<!--                    :options="state.dropdownOptions"-->
-<!--                    @select="handleDropSelected"-->
-<!--        >-->
           <n-input @focus="state.showDropdown = true"
                    @input="searchFile"
                    @blur="state.showDropdown = false; state.dropdownOptions = []"
@@ -29,8 +24,6 @@
           <n-button>上传文件</n-button>
         </n-upload>
       </div>
-
-
     </div>
     <n-data-table :columns="state.tableColumns" :data="state.fileList">
       <template #default="{row}">
@@ -73,15 +66,14 @@
     </n-modal>
   </div>
 </template>
-
 <script>
 import {defineComponent, h, onMounted, reactive, toRefs} from "vue";
 import {router} from "../../router/router.js";
 import {BASE_URL} from "../../api/api.js";
 import {getProjectDetail} from "../../api/project.js";
 import {addFile, deleteFile, exportFile, search} from "../../api/file.js";
-import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload, NPopconfirm} from "naive-ui";
-import {UserFilePermissionEnum} from '../../util/enums.js'
+import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload, NSpace} from "naive-ui";
+import {UserFilePermissionEnum} from '../../util/enums.js';
 
 export default defineComponent({
   computed: {
@@ -142,7 +134,7 @@ export default defineComponent({
     NDataTable,
     NDropdown,
     NUpload,
-    NPopconfirm
+    NSpace
   },
   setup() {
     const handleDeleteFile = (id) => {
@@ -176,7 +168,7 @@ export default defineComponent({
           title: '操作',
           key: 'action',
           render: (row) => {
-            return h('div', {}, [
+            return h(NSpace, {}, [
                   h(NButton, {
                     onClick: () => handleDeleteFile(row.fileId),
                     pmsFile: UserFilePermissionEnum.ADMIN

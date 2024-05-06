@@ -55,7 +55,11 @@ const routes = [
                 path:'/backup/:id',
                 name: 'BackupDetailView',
                 component: () => import("../views/menu/BackupDetailView.vue")
-            },
+            }, {
+                path:'/searchFile',
+                name: 'SearchFileView',
+                component: () => import("../views/menu/SearchFileView.vue")
+            }
         ]
     } ,{
         path: '/fileView',
