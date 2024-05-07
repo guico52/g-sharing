@@ -1,12 +1,11 @@
 <script setup>
 import {h, ref} from "vue";
-import {darkTheme, NIcon, NLayout, NLayoutSider, NMenu} from "naive-ui";
+import { NIcon, NLayout, NLayoutSider, NMenu} from "naive-ui";
 import {RouterLink} from "vue-router";
 import {
   DocumentsOutline,
   DocumentOutline,
-  FileTrayOutline,
-  TrashOutline, AccessibilityOutline
+  TrashOutline, AccessibilityOutline, SearchOutline
 } from "@vicons/ionicons5";
 
 
@@ -21,6 +20,18 @@ const menuOption = ref([
         'welcome to GSharing',
     ),
     key: 'header',
+  },
+  {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/searchFile',
+        }, {
+          default: () => '搜索'
+        }),
+    key: 'permission',
+    icon: renderIcon(SearchOutline)
   },
   {
     label: () => h(
@@ -57,18 +68,7 @@ const menuOption = ref([
         }),
     key: 'user',
     icon: renderIcon(AccessibilityOutline)
-  }, {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/permission',
-        }, {
-          default: () => '权限'
-        }),
-    key: 'permission',
-    icon: renderIcon(FileTrayOutline)
-  }, {
+  },  {
     label: () => h(
         RouterLink,
         {
