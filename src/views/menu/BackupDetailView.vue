@@ -37,7 +37,7 @@ const columns = ref([
         }, '浏览'),
         h(NButton, {
           onClick: () => {
-            exportBackupFile(row.id)
+            exportBackupFile(row.id, row.fileName)
           }}, '导出')
       ])
     }

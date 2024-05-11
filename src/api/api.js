@@ -69,8 +69,8 @@ export function post(url, data,headers) {
 
 
 
-export function download(url, data){
-    return instance.post(BASE_URL+url, data, {responseType: 'blob'}).then(
+export function download(url, data, name, headers){
+    return instance.post(BASE_URL+url, data, {responseType: 'blob', headers:headers}).then(
         resp => {
             message.info('下载成功')
             const blob = new Blob([resp.data], {type: 'application/octet-stream'})
@@ -78,7 +78,11 @@ export function download(url, data){
             const href = window.URL.createObjectURL(blob)
             downloadElement.href = href
             console.log(resp.headers)
-            downloadElement.download = "file.docx"
+            if(name.endsWith('.docx') || name.endsWith("doc")){
+                downloadElement.download = name
+            } else {
+                downloadElement.download = `${name}.docx`
+            }
             document.body.appendChild(downloadElement)
             downloadElement.click()
             document.body.removeChild(downloadElement)

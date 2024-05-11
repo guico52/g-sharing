@@ -4,6 +4,10 @@ export function getUserInfo(){
     return post("/user/userInfo")
 }
 
+export function filePermission(fileId){
+    return post("/file/getUserPermission", {id: fileId})
+}
+
 export function getFileContent(id) {
     return post("/file/content", {id: id}, {fileId: id})
 }
@@ -20,8 +24,8 @@ export function updateFile(id, name){
     return post("/file/update", {id: id, name: name}, {fileId: id})
 }
 
-export function exportFile(id, fileId) {
-    return download("/file/export", {id: id}, {fileId: fileId})
+export function exportFile(id, name) {
+    return download("/file/export", {id: id}, name, {fileId: fileId})
 }
 
 export function search(id, keyword) {

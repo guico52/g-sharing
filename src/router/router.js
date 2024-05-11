@@ -4,7 +4,7 @@ import TipTapCollabrativeEditor from "../components/editor/TipTapCollabrativeEdi
 import MenuView from "../views/MenuView.vue";
 import ProjectView from "../views/menu/ProjectView.vue";
 import BackupView from "../views/menu/BackupView.vue";
-import PermissionView from "../views/menu/PermissionView.vue";
+import PermissionView from "../views/menu/ManageUserView.vue";
 import DeletedFileView from "../views/menu/DeletedFileView.vue";
 import MyInfoView from "../views/menu/MyInfoView.vue";
 import CollaborativeEditorView from "../views/CollaborativeEditorView.vue";
@@ -67,6 +67,10 @@ const routes = [
                 path:'/MyInfo',
                 name: 'MyInfoView',
                 component: () => import("../views/menu/MyInfoView.vue")
+            }, {
+                path:'/manageUser',
+                name: 'ManageUserView',
+                component: () => import("../views/menu/ManageUserView.vue")
             }
         ]
     } ,{

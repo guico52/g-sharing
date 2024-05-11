@@ -153,8 +153,8 @@ export default defineComponent({
       )
     }
 
-    const handleExportFile = (id) => {
-      exportFile(id)
+    const handleExportFile = (id, name) => {
+      exportFile(id, name)
     }
     const state = reactive({
       tableColumns: [
@@ -183,7 +183,7 @@ export default defineComponent({
                     pmsFile: UserFilePermissionEnum.READ_ONLY
                   }, '浏览'),
                   h(NButton, {
-                    onClick: () => handleExportFile(row.fileId),
+                    onClick: () => handleExportFile(row.fileId, row.fileName),
                     pmsFile: UserFilePermissionEnum.READ_ONLY
                   }, '导出'),
                   h(NButton, {

@@ -38,8 +38,10 @@ import * as Y from 'yjs'
 import MenuBar from './MenuBar.vue'
 import {WebrtcProvider} from "y-webrtc";
 import {MyWebsocket} from "../../ws/websocket.js";
-import {getFileContent, getUserInfo} from "../../api/file.js";
+import {filePermission, getFileContent, getUserInfo} from "../../api/file.js";
 import {router} from "../../router/router.js";
+import {message} from "../../api/api.js";
+import {UserFilePermissionEnum} from "../../util/enums.js";
 
 
 // 获取随机的数组下标，用于获取随机的颜色
@@ -67,7 +69,8 @@ export default {
       provider: null,
       editor: null,
       status: 'connecting',
-      room: ''
+      room: '',
+      editable: false
     }
   },
 
@@ -76,7 +79,7 @@ export default {
     const ydoc = new Y.Doc();
     console.log('fileView receive params:', this.$route.query)
     this.room = this.$route.query.fileId;
-    getUserInfo().then(res => {
+    getUserInfo(this.room).then(res => {
       this.currentUser.name = res.data.data.username;
       this.currentUser.id = res.data.data.userId;
       this.provider = new WebrtcProvider(this.room, ydoc);
@@ -124,6 +127,23 @@ export default {
           }),
         ],
       });
+      filePermission(this.room).then(res => {
+        console.log(res.data.data.level)
+        if (res.data.data.level <= UserFilePermissionEnum.UNREADABLE) {
+          // 回到上一页
+          router.go(-1)
+          message.error('您没有权限查看该文件')
+        }
+        if(res.data.data.level <= UserFilePermissionEnum.READ_ONLY) {
+          this.editor.commands.setEditable(false)
+          message.info('您只有查看权限')
+        }
+        if(res.data.data.level >= UserFilePermissionEnum.READ_WRITE) {
+          this.editable = true
+          this.editor.commands.setEditable(true)
+          message.success('您有编辑权限')
+        }
+      })
       getFileContent(this.room).then(res => {
         console.log(res.data.data.html)
         this.editor.commands.setContent(res.data.data.html);

@@ -12,6 +12,6 @@ export function backupFileContent(id){
     return post('/backup/content', {id: id})
 }
 
-export function exportBackupFile(id){
-    return download('/backup/export', {id: id})
+export function exportBackupFile(id, name){
+    return download('/backup/export', {id: id}, name, {fileId: id})
 }

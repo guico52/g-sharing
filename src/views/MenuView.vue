@@ -5,7 +5,7 @@ import {RouterLink} from "vue-router";
 import {
   DocumentsOutline,
   DocumentOutline,
-  TrashOutline, AccessibilityOutline, SearchOutline, PeopleOutline, LogOutOutline
+  TrashOutline, AccessibilityOutline, SearchOutline, PeopleOutline, LogOutOutline, PeopleCircleOutline
 } from "@vicons/ionicons5";
 import {router} from "../router/router.js";
 
@@ -91,6 +91,17 @@ const menuOption = ref([
         }),
     key: 'myInfo',
     icon: renderIcon(AccessibilityOutline)
+  },{
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/manageUser'
+        }, {
+          default: () => '用户管理'
+        }),
+    key: 'manageUser',
+    icon: renderIcon(PeopleCircleOutline)
   }, {
     label: () => h(
         'label',
@@ -98,7 +109,7 @@ const menuOption = ref([
           class: 'menu-header-item',
           onClick: () => {
             localStorage.removeItem('token')
-            router.push({name: 'LoginAndRegisterView'})
+            window.location.href = '/#/login'
           }
         },
         '退出登录'

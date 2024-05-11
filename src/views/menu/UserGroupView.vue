@@ -9,15 +9,6 @@
     <n-data-table :columns="columns" :data="data">
     </n-data-table>
   </div>
-  <n-modal v-model:show="showModal" :on-after-leave="onAfterLeave">
-    <template #title>
-    </template>
-    <template #default>
-      <div class="permission-content">
-        <n-data-table :columns="detailColumns" :data="groupDetail" />
-      </div>
-    </template>
-  </n-modal>
 
 </template>
 <script setup>
@@ -107,11 +98,24 @@ const columns = ref([
         }, '重命名'),
         h(NButton, {
           onClick: () => {
-            showModal.value = true;
             detail(row.id).then(
                 res => {
                   groupDetail.value = res.data.data
                 })
+            dialog.info({
+              title: '更改权限',
+              content: () => {
+                return h('div', {class: 'permission-content'}, [
+                  h(NDataTable, {
+                    columns: detailColumns.value,
+                    data: groupDetail.value
+                  })
+                ])
+              },
+              positiveText: '确认',
+              negativeText: '取消',
+              onAfterLeave: onAfterLeave
+            });
           }
         }, '更改权限'),
         h(NButton, {
@@ -124,22 +128,23 @@ const columns = ref([
                     return user.userId
                   })
                 }
-            )
+            );
             dialog.info({
               title: '管理成员',
               content: () => {
-                return h(
-                    NTransfer,
+                return h(NTransfer,
                     {
                       value: userValue.value,
                       options: userOption.value,
                       onUpdateValue: (value) => {
                         userValue.value = value
                       }
-                    },
+                    }
                 )
               },
-              onAfterLeave: () => {
+              positiveText: '确认',
+              negativeText: '取消',
+              onPositiveClick: () => {
                 updateUserGroupMember(row.id, userValue.value).then(
                     res => {
                       if(res.data.code === 200){
@@ -148,7 +153,7 @@ const columns = ref([
                     }
                 )
               }
-            })
+            });
           }
         }, '管理成员'),
         h(NButton, {
