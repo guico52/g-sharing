@@ -2,10 +2,7 @@
   <div class="content">
     <div class="search-content">
       <div class="search-content-inner">
-          <n-input @focus="state.showDropdown = true"
-                   @input="searchFile"
-                   @blur="state.showDropdown = false; state.dropdownOptions = []"
-                   v-model:value="state.input"
+          <n-input v-model:value="state.input"
                    class="search-input"
                    round
                    placeholder="搜索"/>
@@ -69,10 +66,18 @@
 <script>
 import {defineComponent, h, onMounted, reactive, toRefs} from "vue";
 import {router} from "../../router/router.js";
-import {BASE_URL} from "../../api/api.js";
+import {BASE_URL, dialog, message} from "../../api/api.js";
 import {getProjectDetail} from "../../api/project.js";
-import {addFile, deleteFile, exportFile, search} from "../../api/file.js";
-import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload, NSpace} from "naive-ui";
+import {
+  addFile,
+  deleteFile,
+  exportFile,
+  getFilePermission,
+  getUserGroupIdByProjectId,
+  search,
+  updateFilePermission
+} from "../../api/file.js";
+import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload, NSpace, NRadioGroup, NRadio} from "naive-ui";
 import {UserFilePermissionEnum} from '../../util/enums.js';
 
 export default defineComponent({
@@ -87,7 +92,7 @@ export default defineComponent({
     },
     addFile() {
       const projectId = router.currentRoute.value.params.id;
-      addFile(this.state.fileName, projectId).then(
+      addFile(this.state.fileName, this.state.userGroupId).then(
           () => {
             getProjectDetail(projectId).then(res => {
               this.state.fileList = res.data.data;
@@ -139,7 +144,7 @@ export default defineComponent({
   setup() {
     const handleDeleteFile = (id) => {
       console.log("delete file id: ", id)
-      deleteFile(id).then(
+      deleteFile(id, state.userGroupId).then(
           () => {
             getProjectDetail(router.currentRoute.value.params.id).then(res => {
               state.fileList = res.data.data;
@@ -182,7 +187,62 @@ export default defineComponent({
                     pmsFile: UserFilePermissionEnum.READ_ONLY
                   }, '导出'),
                   h(NButton, {
-                    onClick: () => null,
+                    onClick: () => {
+                      const fileId = row.fileId;
+                      getFilePermission(fileId).then(
+                          res => {
+                            state.filePermissionList = res.data.data;
+                      }
+                      )
+                      dialog.info({
+                        title: '设置权限',
+                        content: () => h(NSpace, {}, [
+                            h(NDataTable, {
+                              columns: [
+                                {
+                                  title: '用户',
+                                  key: 'username'
+                                },
+                                {
+                                  title: '权限',
+                                  key: 'level',
+                                  render: (row) => h(NRadioGroup, {
+                                    value: row.level,
+                                    onUpdateValue: (value) => {
+                                      row.level = value
+                                    }
+                                  }, [
+                                      h(NSpace, null ,{
+                                        default: () => radioOptions.map(option => h(NRadio, {
+                                          value: option.value,
+                                          defaultChecked: row.level === option.value,
+                                          checked: row.level === option.value,
+                                        }, {default: () => option.label}))
+                                      })
+                                  ])
+                                }
+                              ],
+                              data: state.filePermissionList
+                            })
+                        ]),
+                        positiveText: '确定',
+                        negativeText: '取消',
+                        onPositiveClick: () => {
+                          const items = state.filePermissionList.map(
+                              item => {
+                                return {
+                                  id: item.id,
+                                  userId: item.userId,
+                                  level: item.level
+                                }
+                              }
+                          );
+                          updateFilePermission(items, state.userGroupId).then(
+                              () => message.success('设置成功')
+                          )
+                        }
+                      })
+                    },
                     pmsFile: UserFilePermissionEnum.ADMIN
                   }, '设置权限')
                 ]
@@ -191,6 +251,7 @@ export default defineComponent({
         }
       ],
       fileList: [],
+      filePermissionList: [],
       modalShow: false,
       fileName: '',
       uploadUrl: BASE_URL + '/file/upload',
@@ -203,14 +264,33 @@ export default defineComponent({
       },
       input: '',
       showDropdown: false,
-      dropdownOptions: []
-
+      dropdownOptions: [],
+      userGroupId: '',
     })
     const stateToRefs = toRefs(state);
+
+    const radioOptions = [
+      {
+        label:'不可读',
+        value: UserFilePermissionEnum.UNREADABLE
+      }, {
+        label: '只读',
+        value: UserFilePermissionEnum.READ_ONLY
+      }, {
+        label: '读写',
+        value: UserFilePermissionEnum.READ_WRITE
+      }, {
+        label: '管理员',
+        value: UserFilePermissionEnum.ADMIN
+      }
+    ]
     onMounted(() => {
       // 获取路径
       getProjectDetail(router.currentRoute.value.params.id).then(res => {
         state.fileList = res.data.data;
+      })
+      getUserGroupIdByProjectId(router.currentRoute.value.params.id).then(res => {
+        state.userGroupId = res.data.data;
       })
 
 

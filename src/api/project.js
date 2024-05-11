@@ -1,31 +1,31 @@
 import {post} from './api.js'
 
-export function getProjectList() {
-    return post("/project/list")
+export function getProjectList(name) {
+    return post("/project/list", {name: name})
 }
 
-export function getProjectDetail(id) {
-    return post("/project/detail", {id: id})
+export function getProjectDetail(id, name) {
+    return post("/project/detail", {id: id, name: name})
 }
 
 export function createProject(name, description, userGroupId) {
     return post("/project/create", {name, description, userGroupId})
 }
 
-export function getUserGroups(){
-    return post("/userGroup/list")
+export function getUserGroups(name){
+    return post("/userGroup/list", {name: name})
 }
 
-export function deleteProject(id){
-    return post("/project/delete", {id: id})
+export function deleteProject(id, userGroupId) {
+    return post("/project/delete", {id: id}, {userGroupId: userGroupId})
 }
 
-export function updateProject(id, name, description){
+export function updateProject(id, name, description, userGroupId){
     return post("/project/update", {
         id: id,
         name: name,
         description: description,
-})
+}, {userGroupId: userGroupId})
 }
 
 export function search(keyword) {

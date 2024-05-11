@@ -5,8 +5,9 @@ import {RouterLink} from "vue-router";
 import {
   DocumentsOutline,
   DocumentOutline,
-  TrashOutline, AccessibilityOutline, SearchOutline
+  TrashOutline, AccessibilityOutline, SearchOutline, PeopleOutline, LogOutOutline
 } from "@vicons/ionicons5";
+import {router} from "../router/router.js";
 
 
 const menuActiveKey = ref(null)
@@ -67,7 +68,7 @@ const menuOption = ref([
           default: () => '用户组'
         }),
     key: 'user',
-    icon: renderIcon(AccessibilityOutline)
+    icon: renderIcon(PeopleOutline)
   },  {
     label: () => h(
         RouterLink,
@@ -79,6 +80,31 @@ const menuOption = ref([
         }),
     key: 'deletedFile',
     icon: renderIcon(TrashOutline)
+  }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/myInfo',
+        }, {
+          default: () => '我的信息'
+        }),
+    key: 'myInfo',
+    icon: renderIcon(AccessibilityOutline)
+  }, {
+    label: () => h(
+        'label',
+        {
+          class: 'menu-header-item',
+          onClick: () => {
+            localStorage.removeItem('token')
+            router.push({name: 'LoginAndRegisterView'})
+          }
+        },
+        '退出登录'
+    ),
+    key: 'logout',
+    icon: renderIcon(LogOutOutline)
   }
 ])
 

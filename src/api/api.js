@@ -8,7 +8,7 @@ const instance = axios.create({
         'Content-Type': 'application/json;charset=UTF-8',
         'Access-Control-Allow-Origin': '*'
     },
-    timeout: 5000,
+    timeout: 50000,
 
 });
 
@@ -20,15 +20,6 @@ export const {message, loadingBar, dialog} = createDiscreteApi(
 instance.interceptors.request.use(
     config => {
         loadingBar.start();
-        // 如果有token，就加到请求头上
-        const token = localStorage.getItem('token')
-        if(token){
-            console.log("token exist")
-            config.headers.Authorization = token
-            console.log(config.headers)
-        } else {
-            console.log("token not exist")
-        }
         return config
     },
     error => {
@@ -40,7 +31,7 @@ instance.interceptors.request.use(
 instance.interceptors.response.use(
     resp => {
         loadingBar.finish();
-        // console.log(resp)
+        console.log(resp.status)
         if(resp.status === 401){
             const redirectPath = resp.data.redirectPath;
             if(redirectPath) {
@@ -58,18 +49,25 @@ instance.interceptors.response.use(
     },
     error => {
         loadingBar.error();
+        if(error.response.status === 401){
+            message.error('您没有该操作的权限，请联系管理员')
+            return Promise.reject(error)
+        }
         message.error(error.message)
         return Promise.reject(error);
     }
 )
+// 添加全局异常处理
 
 
 
 // 封装axios的post请求
-export function post(url, data) {
+export function post(url, data,headers) {
     // console.log(loadingBar)
-    return  instance.post(BASE_URL+url, data)
+    return  instance.post(BASE_URL+url, data, {headers: headers})
 }
+
+
 
 export function download(url, data){
     return instance.post(BASE_URL+url, data, {responseType: 'blob'}).then(

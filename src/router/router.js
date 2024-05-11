@@ -59,6 +59,14 @@ const routes = [
                 path:'/searchFile',
                 name: 'SearchFileView',
                 component: () => import("../views/menu/SearchFileView.vue")
+            }, {
+                path: '/users',
+                name: 'UserView',
+                component: () => import("../views/menu/UserView.vue")
+            }, {
+                path:'/MyInfo',
+                name: 'MyInfoView',
+                component: () => import("../views/menu/MyInfoView.vue")
             }
         ]
     } ,{
@@ -80,11 +88,11 @@ export const router = createRouter({
 router.beforeEach(
     (to, from, next) => {
         const token = localStorage.getItem('token')
-        console.log(token)
+        // console.log(token)
         if (to.name !== 'LoginAndRegisterView' && !token) {
             next({name: 'LoginAndRegisterView'})
         } else {
-            console.log(to.params)
+            // console.log(to.params)
             next()
         }
     },

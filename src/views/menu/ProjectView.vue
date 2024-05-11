@@ -1,16 +1,16 @@
 <template>
   <div class="search-div">
-    <n-input class="search-input" round placeholder="搜索">
+    <n-input class="search-input" round placeholder="搜索" v-model:value="state.searchInput">
 
     </n-input>
-    <n-button>
+    <n-button @click="getPageProjectList">
       搜索
     </n-button>
     <n-button @click="state.showModal = true">
       添加项目
     </n-button>
   </div>
-  <n-data-table :columns="state.tableColumns" :data="state.projects" :row-props="rowProps"/>
+  <n-data-table :columns="state.tableColumns" :data="state.projects"/>
 
   <n-modal v-model:show="state.showModal" class="modal">
       <template #title>
@@ -35,12 +35,15 @@
 </template>
 
 <script>
-import {defineComponent, onMounted, reactive, ref} from "vue";
-import {NInput, NButton, NModal, NSelect, NDataTable} from "naive-ui"
+import {defineComponent, h, onMounted, reactive, ref} from "vue";
+import {NInput, NButton, NModal, NSelect, NDataTable, NSpace} from "naive-ui"
 import {router} from "../../router/router.js";
 import {getProjectList, createProject, getUserGroups} from "../../api/project.js";
+import {list} from "../../api/usergroup.js";
+import {dialog} from "../../api/api.js";
 
 export default defineComponent({
+  methods: {list},
   components:{
     NInput,
     NButton,
@@ -54,17 +57,32 @@ export default defineComponent({
       projectName: '',
       projectDescription:'',
       projectUserGroup: '',
+      searchInput: '',
       tableColumns: [
         {
           title: '项目名称',
           key: 'name'
-        },
-        {
+        },{
+          title: '所属用户组',
+          key: 'groupName'
+        }, {
           title: '创建者',
           key: 'createBy'
         }, {
           title: '创建时间',
           key: 'createTime'
+        }, {
+          title: '操作',
+          key: 'action',
+          render: (row) => {
+            return h(NSpace, {} , [
+              h(NButton, {
+                onClick: () => {
+                  router.push({path: `/project/${row.id}`})
+                }
+              }, '查看')
+            ])
+          }
         }
       ],
       projects :[],
@@ -81,14 +99,13 @@ export default defineComponent({
     }
 
     const getPageProjectList = () => {
-      getProjectList().then(res => {
+      getProjectList(state.searchInput).then(res => {
         state.projects = res.data.data;
-        console.log(state.projects)
       })
     }
 
     const getUserGroupList = () => {
-      getUserGroups().then(res => {
+      getUserGroups("").then(res => {
         state.userGroups = res.data.data
         state.options = state.userGroups.map(group => {
           return {
@@ -112,7 +129,7 @@ export default defineComponent({
     )
 
     return {
-      state, router, handleAddProject, rowProps
+      state, router, handleAddProject, rowProps,getPageProjectList
     }
   }
 })
