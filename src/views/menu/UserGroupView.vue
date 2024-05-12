@@ -4,6 +4,7 @@
     <n-button @click="search">搜索</n-button>
     <n-button>重置</n-button>
     <n-button @click="addUserGroupHandler">添加</n-button>
+    <n-button @click="aiGenerate('', '你好')">测试</n-button>
   </div>
   <div class="content">
     <n-data-table :columns="columns" :data="data">
@@ -24,7 +25,7 @@ import {
   updateUserGroupMember,
   deleteUserGroup
 } from "../../api/usergroup.js";
-import {message, dialog} from "../../api/api.js";
+import {message, dialog, aiGenerate} from "../../api/api.js";
 
 const data = ref([]);
 const showModal = ref(false);

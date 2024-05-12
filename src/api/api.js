@@ -90,3 +90,43 @@ export function download(url, data, name, headers){
         }
     )
 }
+
+export async function aiGenerate(prompt, content) {
+    const response = await fetch(BASE_URL + '/ai/generate', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+            prompt: prompt,
+            content: content
+        })
+    })
+    const reader = response.body.getReader();
+    let receivedLength = 0; // received that many bytes at the moment
+    let chunks = []; // array of received binary chunks (comprises the body)
+    while(true) {
+        const {done, value} = await reader.read();
+
+        if (done) {
+            break;
+        }
+
+        chunks.push(value);
+        receivedLength += value.length;
+
+        const chunk = new TextDecoder("utf-8").decode(value, {stream: true});
+        console.log("Chunk received:", chunk)
+    }
+
+    // Concatenate all chunks to form the final data
+    const chunksAll = new Uint8Array(receivedLength);
+    let position = 0;
+    for(let chunk of chunks) {
+        chunksAll.set(chunk, position);
+        position += chunk.length;
+    }
+    const finalData = new TextDecoder("utf-8").decode(chunksAll);
+    console.log("Complete data received:", finalData);
+}
