@@ -1,5 +1,5 @@
 <template>
-  <div class="editor" v-if="editor">
+  <div class="editor" v-if="editor" @keydown.ctrl.alt="toggleFloatInput">
     <div class="editor__header__container">
       <menu-bar class="editor__header" :editor="editor"/>
     </div>
@@ -21,6 +21,7 @@
       </div>
     </div>
   </div>
+  <NInput v-show="showFloatInput" v-model:value="prompt" class="float-input" placeholder="输入指令"/>
 </template>
 
 <script>
@@ -48,10 +49,6 @@ import {UserFilePermissionEnum} from "../../util/enums.js";
 const getRandomElement = list => {
   return list[Math.floor(Math.random() * list.length)]
 }
-
-
-
-
 export default {
 
   components: {
@@ -70,14 +67,15 @@ export default {
       editor: null,
       status: 'connecting',
       room: '',
-      editable: false
+      editable: false,
+      prompt: '',
+      showFloatInput: true
     }
   },
 
   mounted() {
     // 初始化变量
     const ydoc = new Y.Doc();
-    console.log('fileView receive params:', this.$route.query)
     this.room = this.$route.query.fileId;
     getUserInfo(this.room).then(res => {
       this.currentUser.name = res.data.data.username;
@@ -167,7 +165,6 @@ export default {
       const name = (window.prompt('Name') || '')
           .trim()
           .substring(0, 32)
-
       if (name) {
         return this.updateCurrentUser({
           name,
@@ -178,7 +175,6 @@ export default {
     updateCurrentUser(attributes) {
       this.currentUser = {...this.currentUser, ...attributes};
       this.editor.chain().focus().updateUser(this.currentUser).run();
-
       localStorage.setItem('currentUser', JSON.stringify(this.currentUser));
     },
 
@@ -194,6 +190,11 @@ export default {
       ])
     },
 
+    toggleFloatInput(e) {
+      e.preventDefault()
+      this.showFloatInput = !this.showFloatInput
+    }
+
   },
 
   beforeUnmount() {
@@ -205,6 +206,17 @@ export default {
 </script>
 
 <style lang="scss">
+.float-input {
+  position: absolute;
+  top: 10px; /* Adjust as needed */
+  left: 50%; /* Center the input box */
+  transform: translateX(-50%); /* Ensure the input box remains centered */
+  z-index: 1000; /* Ensure the input box floats above other elements */
+  height: 3em;
+  width: 20em;
+  /*展示在最上方*/
+}
+
 .editor__header__container {
   /*元素垂直剧中*/
   display: flex;
