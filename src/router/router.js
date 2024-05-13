@@ -81,6 +81,14 @@ const routes = [
         path: '/backup/detail/:id',
         name: 'backupFileView',
         component: CollaborativeEditorView
+    }, {
+        path: '/meeting/:id',
+        name: 'meeting',
+        component: () => import("../views/MeetingView.vue")
+    }, {
+        path: '/meeting-test',
+        name: 'meeting-test',
+        component: () => import("../views/MeetingTest.vue")
     }
 ]
 
