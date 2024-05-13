@@ -99,7 +99,7 @@ export default {
         if (event.candidate) {
           websocket.send(JSON.stringify({
             type: 'ice-candidate',
-            targetUserId: userId,
+            userId: userId,
             candidate: event.candidate,
           }));
         }
@@ -154,6 +154,36 @@ export default {
       const pc = peerConnections[userId];
 
       await pc.setRemoteDescription(new RTCSessionDescription(message.answer));
+      // 在设置远程描述后，检查是否有已生成的ICE候选，并发送它们
+      if (pc.localDescription && pc.localDescription.type === 'offer') {
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            websocket.send(JSON.stringify({
+              type: 'ice-candidate',
+              targetUserId: userId,
+              candidate: event.candidate,
+            }));
+          }
+        };
+
+        // 获取已生成的ICE候选，并立即发送
+        const existingCandidates = pc.localDescription.sdp.split('\n').filter(line => line.startsWith('a=candidate:')).map(line => {
+          const parts = line.substring(2).split(' ');
+          return {
+            candidate: line,
+            sdpMid: parts[0],
+            sdpMLineIndex: parseInt(parts[1], 10),
+          };
+        });
+
+        existingCandidates.forEach(candidate => {
+          websocket.send(JSON.stringify({
+            type: 'ice-candidate',
+            targetUserId: userId,
+            candidate: candidate,
+          }));
+        });
+      }
     };
 
     const handleIceCandidateMessage = async (message) => {
