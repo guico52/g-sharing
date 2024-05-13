@@ -4,6 +4,8 @@
     <video v-for="(remoteStream, userId) in remoteStreams" :key="userId" :ref="'remoteVideoRef_' + userId" autoplay></video>
     <button @click="startMeeting">开始会议</button>
     <button @click="leaveMeeting">离开会议</button>
+    <button @click="shareScreen">共享屏幕</button>
+    <button @click="openCamera">打开摄像头</button>
   </div>
 </template>
 
@@ -18,19 +20,12 @@ export default {
     let peerConnections = {};
     let websocket = null;
 
-    const startMeeting = async () => {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideoRef.value.srcObject = localStream;
-
-        websocket = new WebSocket('ws://localhost:8221/ws/meeting');
-        websocket.onopen = () => {
-          console.log('WebSocket 连接已建立');
-        };
-        websocket.onmessage = handleWebSocketMessage;
-      } catch (error) {
-        console.error('开始会议失败：', error);
-      }
+    const startMeeting = () => {
+      websocket = new WebSocket('ws://localhost:8221/ws/meeting');
+      websocket.onopen = () => {
+        console.log('WebSocket 连接已建立');
+      };
+      websocket.onmessage = handleWebSocketMessage;
     };
 
     const leaveMeeting = () => {
@@ -45,6 +40,32 @@ export default {
         websocket.close();
         websocket = null;
       }
+    };
+
+    const shareScreen = async () => {
+      try {
+        localStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        localVideoRef.value.srcObject = localStream;
+        sendStreamToOtherUsers(localStream);
+      } catch (error) {
+        console.error('共享屏幕失败：', error);
+      }
+    };
+
+    const openCamera = async () => {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideoRef.value.srcObject = localStream;
+        sendStreamToOtherUsers(localStream);
+      } catch (error) {
+        console.error('打开摄像头失败：', error);
+      }
+    };
+
+    const sendStreamToOtherUsers = (stream) => {
+      Object.values(peerConnections).forEach(pc => {
+        stream.getTracks().forEach(track => pc.addTrack(track, stream));
+      });
     };
 
     const handleWebSocketMessage = (event) => {
@@ -88,7 +109,9 @@ export default {
         remoteStreams.value[userId] = event.streams[0];
       };
 
-      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      if (localStream) {
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      }
     };
 
     const closePeerConnection = (userId) => {
@@ -137,6 +160,8 @@ export default {
       remoteStreams,
       startMeeting,
       leaveMeeting,
+      shareScreen,
+      openCamera,
     };
   },
 };
