@@ -91,7 +91,7 @@ export default {
       }
     };
 
-    const createPeerConnection = (userId) => {
+    const createPeerConnection = async (userId) => {
       const pc = new RTCPeerConnection();
       peerConnections[userId] = pc;
 
@@ -99,7 +99,7 @@ export default {
         if (event.candidate) {
           websocket.send(JSON.stringify({
             type: 'ice-candidate',
-            userId: userId,
+            targetUserId: userId,
             candidate: event.candidate,
           }));
         }
@@ -111,6 +111,18 @@ export default {
 
       if (localStream) {
         localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      }
+
+      try {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        websocket.send(JSON.stringify({
+          type: 'offer',
+          targetUserId: userId,
+          offer: offer,
+        }));
+      } catch (error) {
+        console.error('Error creating offer:', error);
       }
     };
 
