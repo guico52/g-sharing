@@ -70,15 +70,18 @@ const setupLocalTracks = async () => {
 
 const toggleAudio = async () => {
   state.isAudioEnabled = !state.isAudioEnabled;
+  await room.localParticipant.setMicrophoneEnabled(state.isAudioEnabled);
 }
 
 const toggleVideo = async () => {
   state.isVideoEnabled = !state.isVideoEnabled;
+  await room.localParticipant.setCameraEnabled(state.isVideoEnabled);
 }
 
 
 const toggleScreen = async () => {
   state.isScreenEnabled = !state.isScreenEnabled;
+  await room.localParticipant.setScreenShareEnabled(state.isScreenEnabled);
 }
 
 const handleTrackSubscribed = (track, publication, participant) => {
