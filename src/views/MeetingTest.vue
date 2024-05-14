@@ -9,19 +9,20 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
 
-export default {
-  setup() {
+
     const localVideoRef = ref(null);
     const remoteStreams = ref({});
     let localStream = null;
-    let peerConnections = {};
+    let peerConnections = new Map();
     let websocket = null;
+    let userId = ref('');
 
     const startMeeting = () => {
-      websocket = new WebSocket('ws://localhost:8221/ws/meeting');
+      userId = Math.random().toString(36).substr(2, 8);
+      websocket = new WebSocket('ws://localhost:8221/ws/meeting/123456/'+userId);
       websocket.onopen = () => {
         console.log('WebSocket 连接已建立');
       };
@@ -34,7 +35,7 @@ export default {
         localStream = null;
       }
       Object.values(peerConnections).forEach(pc => pc.close());
-      peerConnections = {};
+      peerConnections.clear();
       remoteStreams.value = {};
       if (websocket) {
         websocket.close();
@@ -69,6 +70,7 @@ export default {
     };
 
     const handleWebSocketMessage = (event) => {
+      console.log(`user ${userId}Received message:`, event.data)
       const message = JSON.parse(event.data);
       switch (message.type) {
         case 'user-joined':
@@ -94,7 +96,8 @@ export default {
     const createPeerConnection = async (userId) => {
       const pc = new RTCPeerConnection();
       peerConnections[userId] = pc;
-
+      console.log('perConnection created, now state: ', pc.signalingState);
+      console.log('perConnection created, iceConnectionState: ', pc.iceConnectionState);
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           websocket.send(JSON.stringify({
@@ -116,11 +119,14 @@ export default {
       try {
         const offer = await pc.createOffer();
         await pc.setLocalDescription(offer);
+        console.log('prepared offer, now state: ', pc.signalingState)
+        console.log("prepared offer, iceConnectionState: ", pc.iceConnectionState)
         websocket.send(JSON.stringify({
           type: 'offer',
-          targetUserId: userId,
+          userId: userId,
           offer: offer,
         }));
+        console.log(`${userId} send offer`);
       } catch (error) {
         console.error('Error creating offer:', error);
       }
@@ -138,73 +144,58 @@ export default {
       const userId = message.userId;
       const pc = peerConnections[userId];
 
-      await pc.setRemoteDescription(new RTCSessionDescription(message.offer));
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
 
+      await pc.setRemoteDescription(new RTCSessionDescription(message.offer));
+      console.log('Received offer, now state: ', pc.signalingState)
+      console.log("Received offer, iceConnectionState: ", pc.iceConnectionState)
+      const answer = await pc.createAnswer();
+      console.log('prepared answer, now state: ', pc.signalingState)
+      console.log("prepared answer, iceConnectionState: ", pc.iceConnectionState)
+      console.log('answer: ', answer)
+      console.log('pc: ', pc)
+      await pc.setLocalDescription(answer);
+       console.log('setLocalDescription, now state: ', pc.signalingState)
+      console.log("setLocalDescription, iceConnectionState: ", pc.iceConnectionState)
+      console.log('pc: ', pc)
       websocket.send(JSON.stringify({
         type: 'answer',
         userId: userId,
         answer: answer,
       }));
+      console.log(`${userId} send answer`);
     };
 
     const handleAnswerMessage = async (message) => {
       const userId = message.userId;
       const pc = peerConnections[userId];
+      console.log('Received answer, now state: ', pc.signalingState);
+      console.log('Received answer, iceConnectionState: ', pc.iceConnectionState);
 
-      await pc.setRemoteDescription(new RTCSessionDescription(message.answer));
-      // 在设置远程描述后，检查是否有已生成的ICE候选，并发送它们
-      if (pc.localDescription && pc.localDescription.type === 'offer') {
-        pc.onicecandidate = (event) => {
-          if (event.candidate) {
-            websocket.send(JSON.stringify({
-              type: 'ice-candidate',
-              targetUserId: userId,
-              candidate: event.candidate,
-            }));
-          }
-        };
+      if(pc.signalingState === 'have-local-offer') {
+        pc.setRemoteDescription(new RTCSessionDescription(message.answer));
+      }
 
-        // 获取已生成的ICE候选，并立即发送
-        const existingCandidates = pc.localDescription.sdp.split('\n').filter(line => line.startsWith('a=candidate:')).map(line => {
-          const parts = line.substring(2).split(' ');
-          return {
-            candidate: line,
-            sdpMid: parts[0],
-            sdpMLineIndex: parseInt(parts[1], 10),
-          };
-        });
-
-        existingCandidates.forEach(candidate => {
+      // 接下来，开始交换 ice candidate
+      pc.onicecandidate = event => {
+        if (event.candidate) {
+          console.log('Sending ice candidate')
           websocket.send(JSON.stringify({
             type: 'ice-candidate',
-            targetUserId: userId,
-            candidate: candidate,
+            userId: userId,
+            candidate: event.candidate,
           }));
-        });
+          console.log(`${userId} send ice candidate`)
+        }
       }
     };
 
     const handleIceCandidateMessage = async (message) => {
       const userId = message.userId;
       const pc = peerConnections[userId];
-
       await pc.addIceCandidate(new RTCIceCandidate(message.candidate));
-    };
+    }
 
-    onUnmounted(() => {
-      leaveMeeting();
-    });
 
-    return {
-      localVideoRef,
-      remoteStreams,
-      startMeeting,
-      leaveMeeting,
-      shareScreen,
-      openCamera,
-    };
-  },
-};
+
+
 </script>
