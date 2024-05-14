@@ -6,11 +6,13 @@
     <button @click="leaveMeeting">离开会议</button>
     <button @click="shareScreen">共享屏幕</button>
     <button @click="openCamera">打开摄像头</button>
+    <button @click=""></button>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
+
 
 
     const localVideoRef = ref(null);
@@ -19,15 +21,22 @@ import { ref, onMounted, onUnmounted } from 'vue';
     let peerConnections = new Map();
     let websocket = null;
     let userId = ref('');
+    const pcConfig = {iceServers: [{urls: 'stun:stun.l.google.com:19302'}]};
 
     const startMeeting = () => {
       userId = Math.random().toString(36).substr(2, 8);
       websocket = new WebSocket('ws://localhost:8221/ws/meeting/123456/'+userId);
       websocket.onopen = () => {
-        console.log('WebSocket 连接已建立');
+        console.log('WebSocket 连接已建立, userId:', userId);
       };
       websocket.onmessage = handleWebSocketMessage;
     };
+
+    const listRooms = () => {
+      listRooms().then(res => {
+        console.log('Rooms:', res.data.data);
+      });
+}
 
     const leaveMeeting = () => {
       if (localStream) {
@@ -74,8 +83,9 @@ import { ref, onMounted, onUnmounted } from 'vue';
       const message = JSON.parse(event.data);
       switch (message.type) {
         case 'user-joined':
-          const userId = message.userId;
-          createPeerConnection(userId);
+          if(message.userId !== userId) {
+            createPeerConnection(message.userId);
+          }
           break;
         case 'user-left':
           const user = message.userId;
@@ -93,23 +103,25 @@ import { ref, onMounted, onUnmounted } from 'vue';
       }
     };
 
-    const createPeerConnection = async (userId) => {
-      const pc = new RTCPeerConnection();
-      peerConnections[userId] = pc;
+    const createPeerConnection = async (targetUser) => {
+      const pc = new RTCPeerConnection({});
+      peerConnections[targetUser] = pc;
       console.log('perConnection created, now state: ', pc.signalingState);
       console.log('perConnection created, iceConnectionState: ', pc.iceConnectionState);
+
       pc.onicecandidate = (event) => {
         if (event.candidate) {
           websocket.send(JSON.stringify({
             type: 'ice-candidate',
             userId: userId,
             candidate: event.candidate,
+            targetUserId: targetUser,
           }));
         }
       };
 
       pc.ontrack = (event) => {
-        remoteStreams.value[userId] = event.streams[0];
+        remoteStreams.value[targetUser] = event.streams[0];
       };
 
       if (localStream) {
@@ -125,24 +137,28 @@ import { ref, onMounted, onUnmounted } from 'vue';
           type: 'offer',
           userId: userId,
           offer: offer,
+          targetUser: targetUser
         }));
-        console.log(`${userId} send offer`);
+        console.log(`${userId} send offer to ${targetUser}`);
       } catch (error) {
         console.error('Error creating offer:', error);
       }
     };
 
-    const closePeerConnection = (userId) => {
-      if (peerConnections[userId]) {
-        peerConnections[userId].close();
-        delete peerConnections[userId];
-        delete remoteStreams.value[userId];
+    const closePeerConnection = (targetUser) => {
+      if (peerConnections[targetUser]) {
+        peerConnections[targetUser].close();
+        delete peerConnections[targetUser];
+        delete remoteStreams.value[targetUser];
       }
     };
 
     const handleOfferMessage = async (message) => {
-      const userId = message.userId;
-      const pc = peerConnections[userId];
+
+      const targetUser = message.userId;
+      console.log('Received offer, targetUser:', targetUser)
+      const pc = new RTCPeerConnection({});
+      peerConnections[targetUser] = pc;
 
 
       await pc.setRemoteDescription(new RTCSessionDescription(message.offer));
@@ -151,29 +167,26 @@ import { ref, onMounted, onUnmounted } from 'vue';
       const answer = await pc.createAnswer();
       console.log('prepared answer, now state: ', pc.signalingState)
       console.log("prepared answer, iceConnectionState: ", pc.iceConnectionState)
-      console.log('answer: ', answer)
-      console.log('pc: ', pc)
       await pc.setLocalDescription(answer);
-       console.log('setLocalDescription, now state: ', pc.signalingState)
+      console.log('setLocalDescription, now state: ', pc.signalingState)
       console.log("setLocalDescription, iceConnectionState: ", pc.iceConnectionState)
-      console.log('pc: ', pc)
       websocket.send(JSON.stringify({
         type: 'answer',
         userId: userId,
         answer: answer,
+        targetUserId: targetUser,
       }));
-      console.log(`${userId} send answer`);
+      console.log(`${userId} send answer to ${message.userId}`);
     };
 
     const handleAnswerMessage = async (message) => {
-      const userId = message.userId;
-      const pc = peerConnections[userId];
+      const targetUser = message.userId;
+      const pc = peerConnections[targetUser];
+
+
+      await pc.setRemoteDescription(new RTCSessionDescription(message.answer));
       console.log('Received answer, now state: ', pc.signalingState);
       console.log('Received answer, iceConnectionState: ', pc.iceConnectionState);
-
-      if(pc.signalingState === 'have-local-offer') {
-        pc.setRemoteDescription(new RTCSessionDescription(message.answer));
-      }
 
       // 接下来，开始交换 ice candidate
       pc.onicecandidate = event => {
@@ -183,8 +196,9 @@ import { ref, onMounted, onUnmounted } from 'vue';
             type: 'ice-candidate',
             userId: userId,
             candidate: event.candidate,
+            targetUserId: message.userId,
           }));
-          console.log(`${userId} send ice candidate`)
+          console.log(`${targetUser} send ice candidate`)
         }
       }
     };
