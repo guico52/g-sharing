@@ -67,19 +67,48 @@ const setupLocalTracks = async () => {
   videoContainer.value.appendChild(localVideoTrack.attach());
 }
 
-const toggleAudio = () => {
+const toggleAudio = async () => {
   state.isAudioEnabled = !state.isAudioEnabled;
-  room.localParticipant.setCameraEnabled(state.isAudioEnabled);
+  if (state.isAudioEnabled) {
+    const localAudioTrack = await LocalAudioTrack.create();
+    room.localParticipant.publishTrack(localAudioTrack);
+  } else {
+    room.localParticipant.audioTracks.forEach(trackPublication => {
+      trackPublication.track.stop();
+      room.localParticipant.unpublishTrack(trackPublication.track);
+    });
+  }
 }
 
-const toggleVideo = () => {
+const toggleVideo = async () => {
   state.isVideoEnabled = !state.isVideoEnabled;
-  room.localParticipant.setMicrophoneEnabled(state.isVideoEnabled)
+  if (state.isVideoEnabled) {
+    const localVideoTrack = await LocalVideoTrack.create();
+    room.localParticipant.publishTrack(localVideoTrack);
+    videoContainer.value.appendChild(localVideoTrack.attach());
+  } else {
+    room.localParticipant.videoTracks.forEach(trackPublication => {
+      trackPublication.track.stop();
+      room.localParticipant.unpublishTrack(trackPublication.track);
+    });
+  }
 }
+
 
 const toggleScreen = async () => {
   state.isScreenEnabled = !state.isScreenEnabled;
-  await room.localParticipant.setScreenShareEnabled(state.isScreenEnabled);
+  if (state.isScreenEnabled) {
+    const localScreenTrack = await LocalVideoTrack.createScreenShare();
+    room.localParticipant.publishTrack(localScreenTrack);
+    videoContainer.value.appendChild(localScreenTrack.attach());
+  } else {
+    room.localParticipant.videoTracks.forEach(trackPublication => {
+      if (trackPublication.track.source === 'screen') {
+        trackPublication.track.stop();
+        room.localParticipant.unpublishTrack(trackPublication.track);
+      }
+    });
+  }
 }
 
 const leaveMeeting = () => {
