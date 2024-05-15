@@ -1,9 +1,9 @@
-<template>
-  <div class="editor" v-if="editor" @keydown.ctrl.alt="toggleFloatInput">
-    <div class="editor__header__container">
+<template @keydown.ctrl.alt="toggleFloatInput">
+  <div class="editor" v-if="editor" >
+    <div class="editor__header__container" @keydown.ctrl.alt="toggleFloatInput">
       <menu-bar class="editor__header" :editor="editor"/>
     </div>
-    <editor-content class="editor__content" :editor="editor"/>
+    <editor-content class="editor__content" :editor="editor" @keydown.ctrl.alt="toggleFloatInput"/>
     <div class="editor__footer">
       <div :class="`editor__status editor__status--${status}`">
         <template v-if="status === 'connected'">
@@ -21,7 +21,12 @@
       </div>
     </div>
   </div>
-  <NInput v-show="showFloatInput" v-model:value="prompt" class="float-input" placeholder="输入指令"/>
+  <NInput v-show="showFloatInput"
+          @keydown.ctrl.alt="toggleFloatInput"
+          @keydown.enter="aiGenerate"
+          v-model:value="floatInput"
+          class="float-input"
+          placeholder="输入指令"/>
 </template>
 
 <script>
@@ -41,8 +46,9 @@ import {WebrtcProvider} from "y-webrtc";
 import {MyWebsocket} from "../../ws/websocket.js";
 import {filePermission, getFileContent, getUserInfo} from "../../api/file.js";
 import {router} from "../../router/router.js";
-import {message} from "../../api/api.js";
+import {BASE_URL, message} from "../../api/api.js";
 import {UserFilePermissionEnum} from "../../util/enums.js";
+import {NInput} from "naive-ui";
 
 
 // 获取随机的数组下标，用于获取随机的颜色
@@ -54,6 +60,7 @@ export default {
   components: {
     EditorContent,
     MenuBar,
+    NInput
   },
 
   data() {
@@ -68,8 +75,8 @@ export default {
       status: 'connecting',
       room: '',
       editable: false,
-      prompt: '',
-      showFloatInput: true
+      showFloatInput: true,
+      floatInput: ''
     }
   },
 
@@ -84,7 +91,8 @@ export default {
       this.websocketPrivider = new MyWebsocket(
           `ws://localhost:8221/websocket/${this.room}/${this.currentUser.id}`,
           () => this.status = 'connected',
-          () => {},
+          () => {
+          },
           () => console.error("websocket error"),
           () => {
             this.status = 'disconnected';
@@ -132,11 +140,11 @@ export default {
           router.go(-1)
           message.error('您没有权限查看该文件')
         }
-        if(res.data.data.level <= UserFilePermissionEnum.READ_ONLY) {
+        if (res.data.data.level <= UserFilePermissionEnum.READ_ONLY) {
           this.editor.commands.setEditable(false)
           message.info('您只有查看权限')
         }
-        if(res.data.data.level >= UserFilePermissionEnum.READ_WRITE) {
+        if (res.data.data.level >= UserFilePermissionEnum.READ_WRITE) {
           this.editable = true
           this.editor.commands.setEditable(true)
           message.success('您有编辑权限')
@@ -193,22 +201,64 @@ export default {
     toggleFloatInput(e) {
       e.preventDefault()
       this.showFloatInput = !this.showFloatInput
-    }
+    },
 
-  },
+    async aiGenerate() {
+      const response = await fetch(BASE_URL + '/ai/generate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': localStorage.getItem('token')
+        },
+        body: JSON.stringify({
+          prompt: '请你基于我的文章内容和指令进行生成，文章内容为：' + this.editor.getText(),
+          content: '指令为:' + this.floatInput
+        })
+      })
+      const reader = response.body.getReader();
+      let receivedLength = 0; // received that many bytes at the moment
+      let chunks = []; // array of received binary chunks (comprises the body)
+      while (true) {
+        const {done, value} = await reader.read();
 
-  beforeUnmount() {
-    this.editor.destroy()
-    this.provider.destroy()
-    this.websocketPrivider.closeWebSocketConnection()
-  },
+        if (done) {
+          break;
+        }
+
+        chunks.push(value);
+        receivedLength += value.length;
+
+        const chunk = new TextDecoder("utf-8").decode(value, {stream: true});
+        if(chunk.startsWith("{\"timestamp\":")){
+          continue;
+        }
+        this.editor.commands.insertContent(chunk, {updateSelection: true});
+      }
+
+      // Concatenate all chunks to form the final data
+      const chunksAll = new Uint8Array(receivedLength);
+      let position = 0;
+      for (let chunk of chunks) {
+        chunksAll.set(chunk, position);
+        position += chunk.length;
+      }
+      const finalData = new TextDecoder("utf-8").decode(chunksAll);
+      console.log("Complete data received:", finalData);
+    },
+
+    beforeUnmount() {
+      this.editor.destroy()
+      this.provider.destroy()
+      this.websocketPrivider.closeWebSocketConnection()
+    },
+  }
 }
 </script>
 
 <style lang="scss">
 .float-input {
   position: absolute;
-  top: 10px; /* Adjust as needed */
+  top: 40%; /* Adjust as needed */
   left: 50%; /* Center the input box */
   transform: translateX(-50%); /* Ensure the input box remains centered */
   z-index: 1000; /* Ensure the input box floats above other elements */

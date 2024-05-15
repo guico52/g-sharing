@@ -85,6 +85,7 @@ const toggleScreen = async () => {
 }
 
 const handleTrackSubscribed = (track, publication, participant) => {
+  console.log('Track subscribed', track, publication, participant)
   const element =track.attach();
   videoContainer.value.appendChild(element);
 }

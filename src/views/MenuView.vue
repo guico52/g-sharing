@@ -102,7 +102,27 @@ const menuOption = ref([
         }),
     key: 'manageUser',
     icon: renderIcon(PeopleCircleOutline)
+  },{
+    label: () => h (
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/meetingList'
+        }, {
+          default: () => '会议'
+        }),
+    key: 'meetingList',
   }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/',
+        }, {
+          default: () => '返回主页'
+        }),
+
+  },{
     label: () => h(
         'label',
         {

@@ -17,9 +17,20 @@ const routes = [
         path: '/',
         name: 'HomeView',
         // component: HomeView
-        component: () => import("../views/Introduce.vue")
+        component: () => import("../views/main/MainPage.vue"),
+        children: [
+            {
+                path:'/projects',
+                name: 'ProjectsView',
+                component: () => import("../views/main/ProjectsView.vue")
+            }, {
+                path: '/meeting',
+                name: 'MeetingView',
+                component: () => import("../views/main/MeetingView.vue")
+            }
+        ]
     },{
-        path: '/menu',
+        path: '/backstage',
         name: 'MenuView',
         component: MenuView,
         children: [
@@ -71,6 +82,10 @@ const routes = [
                 path:'/manageUser',
                 name: 'ManageUserView',
                 component: () => import("../views/menu/ManageUserView.vue")
+            }, {
+                path: '/meetingList'
+                ,name: 'MeetingListView',
+                component: () => import("../views/menu/MeetingListView.vue")
             }
         ]
     } ,{

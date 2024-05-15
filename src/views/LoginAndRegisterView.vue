@@ -1,43 +1,36 @@
 <template>
-  <div class="container" >
-    <div class="bubble" style="left: 10%; animation-duration: 8s;"></div>
-    <div class="bubble" style="left: 20%; animation-duration: 5s;"></div>
-    <div class="bubble" style="left: 35%; animation-duration: 7s;"></div>
-    <div class="bubble" style="left: 50%; animation-duration: 10s;"></div>
-    <div class="bubble" style="left: 65%; animation-duration: 6s;"></div>
-    <div class="bubble" style="left: 80%; animation-duration: 8s;"></div>
-    <div class="bubble" style="left: 90%; animation-duration: 9s;"></div>
-        <div class="container-inner" :class="{ flipped: state.isFlipped }">
-          <div class="login-form">
-            <!-- 登录表单 -->
-            <h2>登录</h2>
-            <n-input class="input" v-model:value="state.username" type="text" placeholder="用户名" />
-            <n-input class="input" v-model:value="state.password" type="password" placeholder="密码" />
-            <div>
-              <n-button @click="loginFunc">登录</n-button>
-              <n-button @click="toggleFlip">没有账号？去注册</n-button>
-            </div>
-
-          </div>
-          <div class="register-form">
-            <!-- 注册表单 -->
-            <h2>注册</h2>
-            <n-input class="input" v-model:value="state.registerUsername" type="text" placeholder="用户名" />
-            <n-input class="input" v-model:value="state.registerPassword" type="password" placeholder="密码" />
-            <n-input class="input" v-model:value="state.confirmPassword" type="password" placeholder="确认密码" />
-            <div>
-              <n-button @click="registerFunc">注册</n-button>
-              <n-button @click="toggleFlip">已有账号？去登录</n-button>
-            </div>
-          </div>
+  <div class="container">
+    <div class="container-inner" :class="{ flipped: state.isFlipped }">
+      <div class="login-form">
+        <!-- 登录表单 -->
+        <h2>登录</h2>
+        <n-input class="input" v-model:value="state.username" type="text" placeholder="用户名" />
+        <n-input class="input" v-model:value="state.password" type="password" placeholder="密码" />
+        <div>
+          <n-button class="primary-button" @click="loginFunc">登录</n-button>
+          <n-button class="secondary-button" @click="toggleFlip">没有账号？去注册</n-button>
         </div>
+      </div>
+      <div class="register-form">
+        <!-- 注册表单 -->
+        <h2>注册</h2>
+        <n-input class="input" v-model:value="state.registerUsername" type="text" placeholder="用户名" />
+        <n-input class="input" v-model:value="state.registerPassword" type="password" placeholder="密码" />
+        <n-input class="input" v-model:value="state.confirmPassword" type="password" placeholder="确认密码" />
+        <div>
+          <n-button class="primary-button" @click="registerFunc">注册</n-button>
+          <n-button class="secondary-button" @click="toggleFlip">已有账号？去登录</n-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
+
 <script>
-import { login, register} from "../api/login.js";
-import {defineComponent, reactive} from "vue";
-import {router} from "../router/router.js";
-import {NInput, NButton} from "naive-ui";
+import { login, register } from "../api/login.js";
+import { defineComponent, reactive } from "vue";
+import { router } from "../router/router.js";
+import { NInput, NButton } from "naive-ui";
 
 export default defineComponent({
   components: {
@@ -45,42 +38,40 @@ export default defineComponent({
     NButton
   },
   setup() {
-    const state =reactive({
+    const state = reactive({
       isFlipped: false,
       username: '',
       password: '',
       registerUsername: '',
       registerPassword: '',
-      confirmPassword: '',
-    })
+      confirmPassword: ''
+    });
+
     const toggleFlip = () => {
       state.isFlipped = !state.isFlipped;
     };
 
     const loginFunc = () => {
-      console.log(state.username)
-      console.log(state.password)
+      console.log(state.username, state.password);
       login(state.username, state.password)
           .then(res => {
             console.log(res);
-            if(res.data.data){
-              console.log(res)
-              console.log(res.data.data)
-              localStorage.setItem('token', res.data.data.token)
-              router.push("/menu")
+            if (res.data.data) {
+              console.log(res.data.data);
+              localStorage.setItem('token', res.data.data.token);
+              router.push("/menu");
             }
           })
           .catch(err => {
             console.log(err);
-          })
+          });
     };
 
     const registerFunc = () => {
-      console.log(state.registerUsername)
-      console.log(state.registerPassword, state.confirmPassword)
-      if(state.registerPassword !== state.confirmPassword) {
-        alert('两次密码不一致')
-        return
+      console.log(state.registerUsername, state.registerPassword, state.confirmPassword);
+      if (state.registerPassword !== state.confirmPassword) {
+        alert('两次密码不一致');
+        return;
       }
       register(state.registerUsername, state.registerPassword, state.confirmPassword)
           .then(res => {
@@ -88,39 +79,42 @@ export default defineComponent({
           })
           .catch(err => {
             console.log(err);
-          })
+          });
     };
+
     return {
       state,
       toggleFlip,
       loginFunc,
       registerFunc
-    }
-  },
-
-
-
+    };
+  }
 });
 </script>
+
 <style scoped>
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Arial', sans-serif;
+  background: linear-gradient(to right, #83a4d4, #b6fbff); /* 渐变背景 */
+  height: 100vh;
+}
 
 .container {
-  //background-color: transparent;
   width: 100vw;
   height: 100vh;
-  //perspective: 1000px;
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .container-inner {
-  width: 30em;
-  height: 30em;
+  width: 50em;
+  height: 45em;
   position: relative;
-
   text-align: center;
   transition: transform 0.6s;
   transform-style: preserve-3d;
@@ -128,25 +122,23 @@ export default defineComponent({
   justify-content: center;
   align-items: center;
   flex-direction: column;
-
-
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  padding: 2em;
 }
-
 
 .login-form, .register-form {
   position: absolute;
-  width: 100%;
+  width: 30em;
   height: 100%;
   backface-visibility: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: var(--bg-200);
-  color: var(--text-200);
-  border-radius: 20px;
+  font-size: 20px;
 }
-
 
 .register-form {
   transform: rotateY(180deg);
@@ -156,28 +148,49 @@ export default defineComponent({
   transform: rotateY(180deg);
 }
 
-.input, button {
-  margin: 0.5em 0;
-  color: var(--text-200);
-  border-radius: 10px;
-}
-
 .input {
-  padding: 10px;
-  border: none;
-  outline: none;
-  width: 400px;
-  height: 50px;
+  width: 100%;
+  margin: 10px 0;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  padding: 0.75em;
+  border: 1px solid #ddd;
 }
 
-button {
-  padding: 10px 20px;
-  margin: 10px;
-  border: none;
-  outline: none;
-  cursor: pointer;
+.primary-button , .secondary-button {
+  height: 3em;
+  font-size: 18px;
 }
-/* 现有的样式保持不变 */
+
+.primary-button {
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #3a86ff;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s;
+}
+
+.primary-button:hover {
+  background: #2652b0;
+}
+
+.secondary-button {
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background: #ffa69e;
+  color: #fff;
+  cursor: pointer;
+  border: none;
+  transition: background 0.3s;
+}
+
+.secondary-button:hover {
+  background: #cc4c4c;
+}
 
 /* 动画背景样式 */
 .bubble {
@@ -205,7 +218,4 @@ button {
     opacity: 0;
   }
 }
-
-
 </style>
-
