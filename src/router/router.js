@@ -20,6 +20,11 @@ const routes = [
         component: () => import("../views/main/MainPage.vue"),
         children: [
             {
+               path: '/',
+               name: 'IntroduceView',
+                component: () => import("../views/main/IntroduceView.vue")
+
+            }, {
                 path:'/projects',
                 name: 'ProjectsView',
                 component: () => import("../views/main/ProjectsView.vue")
@@ -120,7 +125,7 @@ router.beforeEach(
     (to, from, next) => {
         const token = localStorage.getItem('token')
         // console.log(token)
-        if (to.name !== 'LoginAndRegisterView' && !token) {
+        if ((to.name !== 'LoginAndRegisterView' || to. name!== 'IntroduceView')&& !token) {
             next({name: 'LoginAndRegisterView'})
         } else {
             // console.log(to.params)

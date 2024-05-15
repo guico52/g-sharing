@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {createDiscreteApi} from "naive-ui";
 // import {inject} from "vue"
-export const BASE_URL = 'http://localhost:8221'
+export const BASE_URL = 'http://192.168.1.3:8221'
 const instance = axios.create({
     headers: {
         'Authorization': localStorage.getItem('token'),
