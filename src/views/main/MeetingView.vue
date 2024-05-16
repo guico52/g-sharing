@@ -2,6 +2,11 @@
   <section class="meetings">
     <h2>正在进行中的会议</h2>
     <div class="meeting-list">
+      <NCard v-if="meetings.length === 0" class="meeting-card">
+        <div class="meeting-content">
+          <h3>暂无会议</h3>
+        </div>
+      </NCard>
       <NCard v-for="meeting in meetings" :key="meeting.id" class="meeting-card">
         <div class="meeting-content">
           <h3>{{ meeting.title }}</h3>
