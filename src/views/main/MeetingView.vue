@@ -10,7 +10,6 @@
       <NCard v-for="meeting in meetings" :key="meeting.id" class="meeting-card">
         <div class="meeting-content">
           <h3>{{ meeting.title }}</h3>
-          <p>主持人：{{ meeting.host }}</p>
           <p>开始时间：{{ meeting.startTime }}</p>
           <p>参与人数：{{ meeting.participants }}</p>
           <NButton>加入会议</NButton>
@@ -23,7 +22,8 @@
 
 <script setup>
 import {NCard, NButton} from "naive-ui";
-import {ref} from "vue";
+import {onMounted, ref} from "vue";
+import {listRooms} from "../../api/meeting.js";
 
 const meetings = ref([
   {
@@ -48,6 +48,16 @@ const meetings = ref([
   },
   // 更多会议数据。..
 ])
+
+onMounted(
+    () => {
+      listRooms().then(
+          res => {
+            meetings.value = res.data.data;
+          }
+      )
+    }
+)
 
 
 </script>

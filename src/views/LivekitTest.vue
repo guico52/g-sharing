@@ -13,8 +13,10 @@
 
 <script setup>
 import {onMounted, ref, reactive} from "vue";
-import {create, getToken, listRooms} from "../api/meeting.js";
-import {Room, RoomEvent, LocalVideoTrack, LocalAudioTrack} from "livekit-client";
+import {createRoom, getToken, listRooms} from "../api/meeting.js";
+import {Room, RoomEvent, LocalVideoTrack, LocalAudioTrack, ParticipantEvent} from "livekit-client";
+import {router} from "../router/router.js";
+import {message} from "../api/api.js";
 
 const wsUrl = 'http://101.33.210.228:7880'
 const room = reactive(new Room());
@@ -32,26 +34,50 @@ const listRoom = () => {
   });
 }
 onMounted(() => {
-  joinMeeting('123').then(() => {
-    console.log('Joined meeting');
-    // 添加时间监听回调
-    room.on(RoomEvent.Connected, () => {
-      console.log('Connected to room');
-      setupLocalTracks();
-    });
+  // 从路由中获取name参数
+  const name = router.currentRoute.value.params.name;
+
+  joinMeeting(name).then(() => {
+    message.success('成功加入会议室')
+    console.log('Joined meeting, room:', room);
+    // 获取所有发布的订阅
+    // 获取当前房间
+    // 加入会议后，订阅所有人的视频和音频
+
     room.on(RoomEvent.Disconnected, () => {
       console.log('Disconnected from room');
     });
     room.on(RoomEvent.ParticipantConnected, (participant) => {
+      // 如果有新的参与者加入，将自己的视频和音频推送给新加入的参与者
       console.log('Participant connected', participant);
+
     });
     room.on(RoomEvent.TrackSubscribed, handleTrackSubscribed);
+    room.on(RoomEvent.ParticipantDisconnected, (participant) => {
+      console.log('Participant disconnected', participant);
+    });
+
+    room.on(RoomEvent.Reconnecting, () => {
+      console.log('Reconnecting...');
+    });
+
+    room.on(RoomEvent.Reconnected, () => {
+      console.log('Reconnected');
+    });
+
+    room.on(RoomEvent.ParticipantMetadataChanged, (participant, metadata) => {
+      console.log('Participant metadata changed', participant, metadata);
+    });
+
+    room.on(ParticipantEvent.TrackPublished, (track, publication, participant) => {
+      console.log('Track published', track, publication, participant);
+    });
   });
 
 })
 
 const createMeeting = async (name) => {
-  const res = await create(name);
+  const res = await createRoom(name);
   console.log('Meeting created', res);
 }
 
@@ -59,14 +85,10 @@ const joinMeeting = async (name) => {
   const res = await getToken(name);
   const token = res.data.data;
   console.log('Token:', token)
-  await room.connect(wsUrl, token);
+  await room.connect(wsUrl, token, {autoSubscribe: true});
 }
 
-const setupLocalTracks = async () => {
-  const localVideoTrack = await LocalVideoTrack.create();
-  const localAudioTrack = await LocalAudioTrack.create();
-  videoContainer.value.appendChild(localVideoTrack.attach());
-}
+
 
 const toggleAudio = async () => {
   state.isAudioEnabled = !state.isAudioEnabled;
@@ -86,9 +108,11 @@ const toggleScreen = async () => {
 
 const handleTrackSubscribed = (track, publication, participant) => {
   console.log('Track subscribed', track, publication, participant)
+  // 将订阅的视频或音频添加到页面中
   const element =track.attach();
   videoContainer.value.appendChild(element);
 }
+
 const leaveMeeting = () => {
   room.disconnect();
 }

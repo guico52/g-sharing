@@ -110,8 +110,7 @@ const routes = [
         name: 'meeting-test',
         component: () => import("../views/MeetingTest.vue")
     }, {
-        path:'/livekit-test'
-        ,name: 'livekit-test',
+        path:'/meet/:name',
         component: () => import("../views/LivekitTest.vue")
     }
 ]
