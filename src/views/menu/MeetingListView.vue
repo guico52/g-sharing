@@ -12,7 +12,7 @@
 import {h, onMounted, ref} from "vue";
 import {NButton, NInput, NSpace, NDataTable} from "naive-ui";
 import {dialog, message} from "../../api/api.js";
-import {createRoom, listRooms} from "../../api/meeting.js";
+import {createRoom, deleteRoom, listRooms} from "../../api/meeting.js";
 import {router} from "../../router/router.js";
 
 const columns = [
@@ -31,10 +31,23 @@ const columns = [
       render: (row) => h(NSpace, {} , [
           h(NButton, {
             onClick: () => {
-              router.push(`/meet/${row.name}`)
+              router.push(`/meeting-room/${row.name}`)
             }
           }, '加入'),
-          h(NButton, {}, '解散')
+          h(NButton, {
+            onClick: () => {
+              deleteRoom(row.name).then(
+                  res => {
+                    listRooms().then(
+                        res => {
+                          data.value = res.data.data
+                        }
+                    )
+                    message.success('解散成功')
+                  }
+              )
+            }
+          }, '解散')
       ])
     }
   ]

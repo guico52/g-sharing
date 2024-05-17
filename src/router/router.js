@@ -112,6 +112,10 @@ const routes = [
     }, {
         path:'/meet/:name',
         component: () => import("../views/LivekitTest.vue")
+    }, {
+        path: '/meeting-room/:name',
+        name: 'MeetingRoomView',
+        component: () => import("../views/meeting/MeetingRoom.vue")
     }
 ]
 
