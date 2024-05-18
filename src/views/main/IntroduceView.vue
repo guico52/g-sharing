@@ -1,7 +1,5 @@
 <template>
   <div class="container">
-
-
     <main>
       <section class="feature" @click="goToDetail('collaboration')">
         <img src="collaboration.png" alt="多人实时协同编辑" />
@@ -22,9 +20,6 @@
       </section>
     </main>
 
-    <footer>
-      <p>&copy; 2023 Company Name. All rights reserved.</p>
-    </footer>
   </div>
 </template>
 

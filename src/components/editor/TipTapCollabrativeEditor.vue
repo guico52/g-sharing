@@ -27,6 +27,7 @@
           v-model:value="floatInput"
           class="float-input"
           placeholder="输入指令"/>
+  <NDropdown/>
 </template>
 
 <script>
@@ -75,7 +76,7 @@ export default {
       status: 'connecting',
       room: '',
       editable: false,
-      showFloatInput: true,
+      showFloatInput: false,
       floatInput: ''
     }
   },
@@ -83,16 +84,18 @@ export default {
   mounted() {
     // 初始化变量
     const ydoc = new Y.Doc();
-    this.room = this.$route.query.fileId;
+
+    this.room = router.currentRoute.value.params.fileId;
+
     getUserInfo(this.room).then(res => {
+      console.log(this.room)
       this.currentUser.name = res.data.data.username;
       this.currentUser.id = res.data.data.userId;
       this.provider = new WebrtcProvider(this.room, ydoc);
       this.websocketPrivider = new MyWebsocket(
           `ws://localhost:8221/websocket/${this.room}/${this.currentUser.id}`,
           () => this.status = 'connected',
-          () => {
-          },
+          () => {},
           () => console.error("websocket error"),
           () => {
             this.status = 'disconnected';
@@ -139,19 +142,23 @@ export default {
           // 回到上一页
           router.go(-1)
           message.error('您没有权限查看该文件')
+          return
         }
         if (res.data.data.level <= UserFilePermissionEnum.READ_ONLY) {
-          this.editor.commands.setEditable(false)
+          this.editor.setEditable(false)
           message.info('您只有查看权限')
+          return
         }
         if (res.data.data.level >= UserFilePermissionEnum.READ_WRITE) {
           this.editable = true
-          this.editor.commands.setEditable(true)
+          this.editor.setEditable(true)
           message.success('您有编辑权限')
+          return
         }
       })
+
       getFileContent(this.room).then(res => {
-        console.log(res.data.data.html)
+        console.log(this.room)
         this.editor.commands.setContent(res.data.data.html);
       })
       this.editor.css.append(`
@@ -204,6 +211,7 @@ export default {
     },
 
     async aiGenerate() {
+
       const response = await fetch(BASE_URL + '/ai/generate', {
         method: 'POST',
         headers: {
@@ -211,10 +219,11 @@ export default {
           'Authorization': localStorage.getItem('token')
         },
         body: JSON.stringify({
-          prompt: '请你基于我的文章内容和指令进行生成，文章内容为：' + this.editor.getText(),
-          content: '指令为:' + this.floatInput
+          prompt:  '请根据要求输出，且不要换行，我的要求是：'+this.floatInput,
+          content: this.editor.getText()
         })
       })
+      this.floatInput = ''
       const reader = response.body.getReader();
       let receivedLength = 0; // received that many bytes at the moment
       let chunks = []; // array of received binary chunks (comprises the body)

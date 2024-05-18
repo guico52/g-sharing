@@ -43,3 +43,7 @@ export function updateFilePermission(items, userGroupId){
 export function getUserGroupIdByProjectId(projectId){
     return post("/file/getUserGroupIdByProjectId", {projectId: projectId})
 }
+
+export function getUserGroupPermissionByProjectId(id){
+    return post("/file/getUserGroupPermissionByProjectId", {id: id})
+}

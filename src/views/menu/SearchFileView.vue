@@ -11,6 +11,7 @@
 import {NInput, NButton, NDataTable} from "naive-ui";
 import {h, ref} from "vue";
 import {asyncFile, searchFile} from "../../api/search.js";
+import {router} from "../../router/router.js";
 
 const searchKeyword = ref('');
 const columns = [
@@ -32,7 +33,7 @@ const columns = [
     render: (row) => {
       return h('n-space', {}, [
         h(NButton, {onClick: () => {
-          console.log(row)
+          router.push(`/fileView/${row.fileId}`)
         }}, '浏览')
       ])
     }

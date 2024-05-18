@@ -1,13 +1,20 @@
 <script setup>
-import {h, ref} from "vue";
+import {h, onMounted, ref} from "vue";
 import { NIcon, NLayout, NLayoutSider, NMenu} from "naive-ui";
 import {RouterLink} from "vue-router";
 import {
   DocumentsOutline,
   DocumentOutline,
-  TrashOutline, AccessibilityOutline, SearchOutline, PeopleOutline, LogOutOutline, PeopleCircleOutline
+  TrashOutline,
+  AccessibilityOutline,
+  SearchOutline,
+  PeopleOutline,
+  LogOutOutline,
+  PeopleCircleOutline,
+  ArrowBackCircleOutline, ChatbubblesOutline
 } from "@vicons/ionicons5";
 import {router} from "../router/router.js";
+import {getMySysPermission} from "../api/myInfo.js";
 
 
 const menuActiveKey = ref(null)
@@ -85,17 +92,6 @@ const menuOption = ref([
         RouterLink,
         {
           class: 'menu-item',
-          to: '/myInfo',
-        }, {
-          default: () => '我的信息'
-        }),
-    key: 'myInfo',
-    icon: renderIcon(AccessibilityOutline)
-  },{
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
           to: '/manageUser'
         }, {
           default: () => '用户管理'
@@ -112,7 +108,19 @@ const menuOption = ref([
           default: () => '会议'
         }),
     key: 'meetingList',
+    icon: renderIcon(ChatbubblesOutline)
   }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/myInfo',
+        }, {
+          default: () => '我的信息'
+        }),
+    key: 'myInfo',
+    icon: renderIcon(AccessibilityOutline)
+  },{
     label: () => h(
         RouterLink,
         {
@@ -121,7 +129,7 @@ const menuOption = ref([
         }, {
           default: () => '返回主页'
         }),
-
+    icon: renderIcon(ArrowBackCircleOutline)
   },{
     label: () => h(
         'label',
@@ -129,7 +137,7 @@ const menuOption = ref([
           class: 'menu-header-item',
           onClick: () => {
             localStorage.removeItem('token')
-            window.location.href = '/#/login'
+            router.push({name: 'LoginAndRegisterView'})
           }
         },
         '退出登录'
@@ -138,10 +146,24 @@ const menuOption = ref([
     icon: renderIcon(LogOutOutline)
   }
 ])
+const systemPermission = ref(0)
 
 const handleMenuItemState = item => {
   menuActiveKey.value = item.key
 }
+
+onMounted(
+    () => {
+      getMySysPermission().then(
+          res => {
+            systemPermission.value = res.data.data
+            if(systemPermission.value <3){
+              menuOption.value = menuOption.value.filter(item => item.key !== 'manageUser')
+            }
+          }
+      )
+    }
+)
 
 function renderIcon(icon) {
   return () => h(NIcon, null, {default: () => h(icon)})
@@ -151,8 +173,6 @@ function renderIcon(icon) {
 <template>
   <div class="background">
     <div class="menu">
-
-
         <n-layout has-sider class="menu-sider-container">
           <n-layout-sider
               bordered
@@ -194,6 +214,10 @@ function renderIcon(icon) {
   height: 100vh;
 }
 
+.menu-content-container {
+  height: 100vh;
+  overflow-x: scroll;
+}
 
 
 </style>

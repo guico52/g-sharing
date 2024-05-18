@@ -73,7 +73,7 @@ import {
   deleteFile,
   exportFile,
   getFilePermission,
-  getUserGroupIdByProjectId,
+  getUserGroupIdByProjectId, getUserGroupPermissionByProjectId,
   search,
   updateFilePermission
 } from "../../api/file.js";
@@ -143,7 +143,6 @@ export default defineComponent({
   },
   setup() {
     const handleDeleteFile = (id) => {
-      console.log("delete file id: ", id)
       deleteFile(id, state.userGroupId).then(
           () => {
             getProjectDetail(router.currentRoute.value.params.id).then(res => {
@@ -176,17 +175,29 @@ export default defineComponent({
             return h(NSpace, {}, [
                   h(NButton, {
                     onClick: () => handleDeleteFile(row.fileId),
-                    pmsFile: UserFilePermissionEnum.ADMIN
+                    pmsFile: UserFilePermissionEnum.ADMIN,
+                    style: {
+                      display: state.permission >=3 ? 'block' : 'none'
+                    },
                   }, '删除'),
                   h(NButton, {
-                    onClick: () => router.push({name: 'fileView', query: {fileId: row.fileId}}),
+                    style: {
+                      display: row.permission >=1 ? 'block' : 'none'
+                    },
+                    onClick: () => router.push(`/fileView/${row.fileId}`),
                     pmsFile: UserFilePermissionEnum.READ_ONLY
                   }, '浏览'),
                   h(NButton, {
+                    style: {
+                      display: row.permission>=1 ? 'block' : 'none'
+                    },
                     onClick: () => handleExportFile(row.fileId, row.fileName),
                     pmsFile: UserFilePermissionEnum.READ_ONLY
                   }, '导出'),
                   h(NButton, {
+                    style: {
+                      display: state.permission >=3 ? 'block' : 'none'
+                    },
                     onClick: () => {
                       const fileId = row.fileId;
                       getFilePermission(fileId).then(
@@ -266,6 +277,7 @@ export default defineComponent({
       showDropdown: false,
       dropdownOptions: [],
       userGroupId: '',
+      permission: 0,
     })
     const stateToRefs = toRefs(state);
 
@@ -291,6 +303,9 @@ export default defineComponent({
       })
       getUserGroupIdByProjectId(router.currentRoute.value.params.id).then(res => {
         state.userGroupId = res.data.data;
+      })
+      getUserGroupPermissionByProjectId(router.currentRoute.value.params.id).then(res => {
+        state.permission = res.data.data;
       })
 
 

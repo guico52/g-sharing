@@ -1,7 +1,7 @@
 import {post, download} from './api.js'
 
-export function backupInfoList(){
-    return post('/backup/list')
+export function backupInfoList(name){
+    return post('/backup/list', {name: name})
 }
 
 export function backupFileList(id) {
@@ -14,4 +14,8 @@ export function backupFileContent(id){
 
 export function exportBackupFile(id, name){
     return download('/backup/export', {id: id}, name, {fileId: id})
+}
+
+export function elsSearch(keyword){
+    return post('/backup/elsSearch', {keyword: keyword})
 }

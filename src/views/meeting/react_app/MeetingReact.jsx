@@ -18,14 +18,16 @@ import {getToken, kickUser, listParticipants, muteUser, unmuteUser} from "../../
 import {router} from "../../../router/router.js";
 import {NModal} from "naive-ui";
 import {useHotkeys} from "react-hotkeys-hook";
-import {Button, Modal, Space} from "antd";
+import {Button,  Modal, Space} from "antd";
+import {message} from '../../../api/api.js'
 
 const serverUrl = 'ws://101.33.210.228:7880';
 const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMzBhOGQ1YmYzNzk0ZmIyYjBiY2JlYzE0MmExY2RlZiIsImlzcyI6ImRldmtleSIsIm5hbWUiOiJyb290IiwidmlkZW8iOnsicm9vbUpvaW4iOnRydWUsInJvb20iOiJ0ZXN0MiJ9LCJleHAiOjE3MTU4OTU4OTEsImp0aSI6ImQzMGE4ZDViZjM3OTRmYjJiMGJjYmVjMTQyYTFjZGVmIn0.SsBz-FU0-2ruC4AqcVut9-SG4uSQ0YIX3WwgF9lS3Go';
 
 export default function MeetingReact() {
     const name = router.currentRoute.value.params.name;
-    const [token, setToken] = useState();
+    const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
+    const [token, setToken] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [data, setData] = useState([]);
     const [local, setLocal] = useState();
@@ -40,7 +42,8 @@ export default function MeetingReact() {
                 setData(res
                     .map(
                         item => ({
-                            userId: item.identity,
+                            userId: item.sid,
+                            userIdentity: item.identity,
                             username: item.name,
                             banned: item.permission.canPublish === false
                         })
@@ -59,43 +62,49 @@ export default function MeetingReact() {
 
 
     const handleListParticipants = useCallback(() => {
-        const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
-        const room = useRoomContext();
-
-        const local = room.localParticipant.identity;
         roomServiceClient.listParticipants(name).then(
             res => {
                 console.log('name:', name)
                 console.log(res)
                 setData(res
-                    .filter(item => item.identity !== local)
                     .map(
                         item => ({
-                            userId: item.identity,
+                            userId: item.sid,
+                            userIdentity: item.identity,
                             username: item.name,
                             banned: item.permission.canPublish === false
                         })
                     ))
             });
 
-    },[]);
+    },[data,name]);
 
-    const handleMuteUser = useCallback((userId) => {
-        const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
-        roomServiceClient.updateParticipant(name, userId, null,{canPublish: false})
-    },[] )
+    const handleMuteUser = useCallback((item) => {
+        roomServiceClient.updateParticipant(name, item.userIdentity, null,{canPublish: false}).then(
+            () => {
+                setShowModal(false)
+            }
+        )
 
-    const handleKickUser = useCallback((userId) => {
-        const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
-        roomServiceClient.removeParticipant(name, userId).then(r => {
-            console.log(r)
+    },[data,name] )
+
+    const handleKickUser = useCallback((item) => {
+
+        roomServiceClient.removeParticipant(name, item.userIdentity).then(r => {
+            setShowModal(false)
         });
-    },[] )
 
-    const handleUnmuteUser = useCallback((userId) => {
+    },[data,name] )
+
+    const handleUnmuteUser = useCallback((item) => {
         const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
-        roomServiceClient.updateParticipant(name, userId, null,{canPublish: true})
-    }, [])
+        roomServiceClient.updateParticipant(name, item.userIdentity, null,{canPublish: true}).then(
+            ()=>{
+                setShowModal(false)
+            }
+        )
+
+    }, [data,name])
     return (
             <LiveKitRoom
                 video={true}
@@ -117,24 +126,33 @@ export default function MeetingReact() {
                 {/*<OnlineUsers/>*/}
                 <Modal open={showModal}
                        onOk={() => setShowModal(!showModal)}
-                       onCancel={() => setShowModal(!showModal)}>
+                       onCancel={() => setShowModal(!showModal)}
+                       style={ {
+                           display: 'flex',
+                           flexDirection: 'column',
+                           justifyContent: 'center',
+                           alignItems: 'center',
+                           overflow: 'auto'
+                       }}
+                >
                     {
-
-
                         data.length > 0 ? data.map(item => (
-                        <Space key={item.userId}>
-                            <div>
-                                {item.username}
-                            </div>
-                            {
-                                item.banned ? <Button onClick={() => handleUnmuteUser(item.userId)}>解除禁言</Button>:
-                                    <Button onClick={() => handleMuteUser(item.userId)}>禁言</Button>
-                            }
+                            <div  key={item.userId}>
+                                <Space>
+                                    <div>
+                                        {item.username}
+                                    </div>
+                                    {
+                                        item.banned ? <Button onClick={() => handleUnmuteUser(item)}>解除禁言</Button>
+                                            : <Button onClick={() => handleMuteUser(item)}>禁言</Button>
+                                    }
 
-                            <Button onClick={() => handleKickUser(item.userId)}>
-                                踢出
-                            </Button>
-                        </Space>
+                                    <Button onClick={() => handleKickUser(item)}>
+                                        踢出
+                                    </Button>
+                                </Space>
+                            </div>
+
                     )) : <div key={'unconnected'}>未连接到会议</div>}
                 </Modal>
             </LiveKitRoom>

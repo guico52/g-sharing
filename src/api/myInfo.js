@@ -19,3 +19,8 @@ export function updateMyPassword(password) {
 export function exitUserGroup(id) {
     return post("/myInfo/exitUserGroup", {id: id})
 }
+
+
+export function getMySysPermission(){
+    return post("/myInfo/myPermission")
+}

@@ -2,11 +2,15 @@
 
 <template>
     <div class="search-content">
-      <n-input placeholder="请输入文件名" v-model="input" round/>
-      <n-button>搜索</n-button>
+      <n-input placeholder="请输入文件名" v-model:value="input" round/>
+      <n-button @click="searchBackupFileByName">搜索</n-button>
+      <n-button @click="resetList">重置</n-button>
     </div>
     <div class="backup-content">
-      <n-data-table :columns="tableColumns" :data="fileInfoList" :row-prop="rowProps"/>
+      <n-data-table :columns="tableColumns"
+                    :data="fileInfoList"
+                    :row-prop="rowProps"
+                    :pagination="{ defaultPageSize: 10}"/>
     </div>
 
 </template>
@@ -50,6 +54,22 @@ onMounted(() => {
     return {
       style: 'cursor: pointer;',
     }
+  }
+
+  const searchBackupFileByName = () => {
+    backupInfoList(input.value).then(
+        res => {
+          fileInfoList.value = res.data.data
+        }
+    )
+  }
+
+  const resetList = () => {
+    backupInfoList().then(
+        res => {
+          fileInfoList.value = res.data.data
+        }
+    )
   }
 </script>
 <style scoped>

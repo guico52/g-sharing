@@ -6,21 +6,28 @@
 
   </div>
   <div>
-    <n-data-table :columns="columns" :data="data">
+    <n-data-table :columns="columns" :data="data" :pagination="{pageSize: 10}">
     </n-data-table>
   </div>
 </template>
 
 <script setup>
-import {NInput, NButton, NDataTable, NSpace} from "naive-ui";
+import {NInput, NButton, NDataTable, NSpace, NEllipsis} from "naive-ui";
 import {h, onMounted, ref} from "vue";
 import {backupFileList, exportBackupFile} from "../../api/backup.js";
 import {useRouter} from "vue-router";
 
 const columns = ref([
   {
-    title: '文件名',
-    key: 'fileName'
+    title: '文件内容',
+    key: 'content',
+    render: (row) => {
+      return h(NEllipsis, {
+        style: 'width: 200px'
+      } , [
+        h('span', {}, row.content)
+      ])
+    }
   }, {
     title: '创建日期',
     key: 'createTime'

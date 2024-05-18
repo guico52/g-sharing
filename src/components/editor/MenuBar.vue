@@ -59,6 +59,9 @@ export default {
           type: 'divider',
         },
         {
+          type:'divider',
+        }
+        ,{
           icon: 'h-1',
           title: 'Heading 1',
           action: () => this.editor.chain().focus().toggleHeading({ level: 1 }).run(),

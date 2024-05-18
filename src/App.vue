@@ -9,7 +9,7 @@ export default defineComponent({
 </script>
 
 <template>
-  <Content />
+  <Content class="view" />
 </template>
 
 <style scoped>

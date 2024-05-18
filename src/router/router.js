@@ -32,6 +32,10 @@ const routes = [
                 path: '/meeting',
                 name: 'MeetingView',
                 component: () => import("../views/main/MeetingView.vue")
+            }, {
+                path: '/groupChat',
+                name: 'GroupChatView',
+                component: () => import("../views/main/GroupChatView.vue")
             }
         ]
     },{
@@ -94,7 +98,7 @@ const routes = [
             }
         ]
     } ,{
-        path: '/fileView',
+        path: '/fileView/:fileId',
         name: 'fileView',
         component: TipTapCollabrativeEditor,
     }, {
@@ -124,15 +128,18 @@ export const router = createRouter({
     routes
 })
 
-router.beforeEach(
-    (to, from, next) => {
-        const token = localStorage.getItem('token')
-        // console.log(token)
-        if ((to.name !== 'LoginAndRegisterView' || to. name!== 'IntroduceView')&& !token) {
-            next({name: 'LoginAndRegisterView'})
-        } else {
-            // console.log(to.params)
-            next()
-        }
-    },
-)
+router.beforeEach((to, from, next) => {
+    // 检查用户是否已经登录
+    const isAuthenticated = !!localStorage.getItem('token');
+
+    if (to.name !== 'LoginAndRegisterView' && !isAuthenticated) {
+        // 如果用户尚未登录，并且尝试访问非登录页面，则重定向到登录页面
+        next({ name: 'LoginAndRegisterView' });
+    } else if (to.name === 'LoginAndRegisterView' && isAuthenticated) {
+        // 如果用户已经登录，并且尝试访问登录页面，则重定向到主页
+        next({ name: 'Home' });
+    } else {
+        // 在其他情况下，正常进行导航
+        next();
+    }
+});

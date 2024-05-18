@@ -57,9 +57,10 @@ export default defineComponent({
           .then(res => {
             console.log(res);
             if (res.data.data) {
-              console.log(res.data.data);
+              console.log(res.data.data.token);
+              localStorage.removeItem('token')
               localStorage.setItem('token', res.data.data.token);
-              router.push("/menu");
+              router.push({name: 'MenuView'});
             }
           })
           .catch(err => {

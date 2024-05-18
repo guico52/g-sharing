@@ -1,18 +1,17 @@
 <template>
   <section class="meetings">
-    <h2>正在进行中的会议</h2>
+    <h2 class="title">会议列表</h2>
     <div class="meeting-list">
-      <NCard v-if="meetings.length === 0" class="meeting-card">
+      <NCard v-if=" meetings.length === 0" class="meeting-card">
         <div class="meeting-content">
           <h3>暂无会议</h3>
         </div>
       </NCard>
       <NCard v-for="meeting in meetings" :key="meeting.id" class="meeting-card">
         <div class="meeting-content">
-          <h3>{{ meeting.title }}</h3>
-          <p>开始时间：{{ meeting.startTime }}</p>
+          <h3>{{ meeting.name }}</h3>
           <p>参与人数：{{ meeting.participants }}</p>
-          <NButton>加入会议</NButton>
+          <NButton @click="router.push(`/meeting-room/${meeting.name}`)">加入会议</NButton>
         </div>
       </NCard>
     </div>
@@ -24,30 +23,9 @@
 import {NCard, NButton} from "naive-ui";
 import {onMounted, ref} from "vue";
 import {listRooms} from "../../api/meeting.js";
+import {router} from "../../router/router.js";
 
-const meetings = ref([
-  {
-    id: 1,
-    title: "项目进度会议",
-    host: "张三",
-    avatar: "avatar1.png",
-    startTime: "2023-06-01 14:00",
-    participants: 10,
-    progress: 50,
-    status: "active",
-  },
-  {
-    id: 2,
-    title: "销售月度总结",
-    host: "李四",
-    avatar: "avatar2.png",
-    startTime: "2023-06-01 16:00",
-    participants: 20,
-    progress: 80,
-    status: "active",
-  },
-  // 更多会议数据。..
-])
+const meetings = ref([]);
 
 onMounted(
     () => {
@@ -65,11 +43,16 @@ onMounted(
 <style scoped>
 .meetings {
   margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
 }
 
 .meetings h2 {
   font-size: 24px;
   margin-bottom: 20px;
+
 }
 
 .meeting-list {

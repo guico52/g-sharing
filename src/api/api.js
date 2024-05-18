@@ -4,7 +4,6 @@ import {createDiscreteApi} from "naive-ui";
 export const BASE_URL = 'http://192.168.1.3:8221'
 const instance = axios.create({
     headers: {
-        'Authorization': localStorage.getItem('token'),
         'Content-Type': 'application/json;charset=UTF-8',
         'Access-Control-Allow-Origin': '*'
     },
@@ -19,6 +18,7 @@ export const {message, loadingBar, dialog} = createDiscreteApi(
 
 instance.interceptors.request.use(
     config => {
+        config.headers['Authorization'] = localStorage.getItem('token');
         loadingBar.start();
         return config
     },
