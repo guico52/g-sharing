@@ -1,14 +1,18 @@
 <template>
   <div class="chat-groups">
-    <ul>
-      <li v-for="group in groups" :key="group.id" @click="selectGroup(group)">
-        {{ group.name }}
-      </li>
-    </ul>
+      <NButton v-for="group in props.groups"
+               class="button"
+               :key="group.id"
+               @click="selectGroup(group)"
+               bordered
+      >{{group.name}}</NButton>
+
   </div>
 </template>
 
 <script setup>
+import {defineProps, defineEmits} from 'vue';
+import {NSpace, NButton} from 'naive-ui';
 const props = defineProps({
   groups: {
     type: Array,
@@ -25,7 +29,18 @@ const selectGroup = (group) => {
 
 <style scoped>
 .chat-groups {
-  width: 30%;
-  /* add your styles */
+  display: flex;
+  flex-direction: column;
+  /* 边框 */
+  border : #0D0D0D 3px solid;
+  /* 圆角 */
+  border-radius: 10px;
+  overflow-y: auto;
+}
+.button {
+  margin: 10px;
+  width: 20em;
+  height: 4em;
+  border: 2px
 }
 </style>

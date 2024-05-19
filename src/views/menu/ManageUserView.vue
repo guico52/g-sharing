@@ -1,5 +1,4 @@
 <template>
-  this is manage user view
   <n-data-table :columns="columns" :data="data"/>
 </template>
 
@@ -26,7 +25,7 @@ const columns = [
     title: '用户名称',
     key: 'username'
   }, {
-    title: '用户权限',
+    title: '系统内权限',
     key: 'userLevel',
     render: (row) => {
       return h(NRadioGroup, {

@@ -32,24 +32,18 @@ export default function MeetingReact() {
     const [data, setData] = useState([]);
     const [local, setLocal] = useState();
     useHotkeys('ctrl+alt', async () => {
-        console.log('ctrl+alt');
-        setShowModal(true);
-        const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
-        roomServiceClient.listParticipants(name).then(
-            res => {
-                console.log('name:', name)
-                console.log(res)
-                setData(res
-                    .map(
-                        item => ({
-                            userId: item.sid,
-                            userIdentity: item.identity,
-                            username: item.name,
-                            banned: item.permission.canPublish === false
-                        })
-                    ))
-            });
+        updateDate();
+        setShowModal(!showModal);
     })
+
+    const updateDate = useCallback(() => {
+        listParticipants(name).then(
+            res => {
+                console.log(res.data.data)
+                setData(res.data.data)
+            }
+        );
+    }, [])
 
     useEffect(() => {
         const name = router.currentRoute.value.params.name;
@@ -61,50 +55,24 @@ export default function MeetingReact() {
     }, []);
 
 
-    const handleListParticipants = useCallback(() => {
-        roomServiceClient.listParticipants(name).then(
-            res => {
-                console.log('name:', name)
-                console.log(res)
-                setData(res
-                    .map(
-                        item => ({
-                            userId: item.sid,
-                            userIdentity: item.identity,
-                            username: item.name,
-                            banned: item.permission.canPublish === false
-                        })
-                    ))
-            });
-
-    },[data,name]);
-
     const handleMuteUser = useCallback((item) => {
-        roomServiceClient.updateParticipant(name, item.userIdentity, null,{canPublish: false}).then(
-            () => {
-                setShowModal(false)
-            }
+        muteUser(name, item.userId).then(
+            () => updateDate()
         )
-
-    },[data,name] )
+    },[] )
 
     const handleKickUser = useCallback((item) => {
-
-        roomServiceClient.removeParticipant(name, item.userIdentity).then(r => {
-            setShowModal(false)
-        });
-
-    },[data,name] )
+        kickUser(name, item.userId).then(
+            () => updateDate()
+        )
+    },[] )
 
     const handleUnmuteUser = useCallback((item) => {
-        const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
-        roomServiceClient.updateParticipant(name, item.userIdentity, null,{canPublish: true}).then(
-            ()=>{
-                setShowModal(false)
-            }
+        unmuteUser(name, item.userId).then(
+            () => updateDate()
         )
 
-    }, [data,name])
+    }, [])
     return (
             <LiveKitRoom
                 video={true}
@@ -138,7 +106,9 @@ export default function MeetingReact() {
                     {
                         data.length > 0 ? data.map(item => (
                             <div  key={item.userId}>
-                                <Space>
+                                <Space style={ {
+                                    margin: '1em'
+                                }}>
                                     <div>
                                         {item.username}
                                     </div>

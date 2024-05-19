@@ -1,141 +1,170 @@
 <template>
-  <div class="project-list">
-    <h2 class="project-list__title">项目列表</h2>
-    <n-collapse class="project-list__collapse" accordion>
-      <template #arrow></template>
-      <n-collapse-item
-          v-for="project in projects"
-          :key="project.id"
-          :name="project.id"
-          :title="project.name"
-          class="project-list__item"
-      >
-        <div class="project-list__files">
-          <div v-for="file in project.files" :key="file.id" class="project-list__file">
-            <div class="project-list__file-info">
-              <span class="project-list__file-name">{{ file.name }}</span>
-              <span class="project-list__file-time">{{ file.createTime }}</span>
-            </div>
-            <div class="project-list__file-actions">
-              <n-button type="primary" size="small" @click="openFile(file)">打开</n-button>
-              <n-button type="error" size="small" @click="deleteFile(file)">删除</n-button>
-            </div>
+  <NSpin :show="loading">
+    <div class="project-list">
+      <div class="search-content">
+        <NInput placeholder="请输入关键词" v-model:value="input"/>
+        <NButton type="primary" @click="handleSearch">搜索</NButton>
+      </div>
+      <div class="project-list__cards">
+        <NCard
+            v-for="file in paginatedFiles"
+            :key="file.fileId"
+            class="project-list__item"
+        >
+          <div class="project-list__file-info">
+            <div class="project-list__file-name" v-html="file.fileName"></div>
+            <div class="project-list__project-name">{{ file.projectName }}</div>
+            <div class="project-list__highlight"
+                 v-show="file.content"
+                 v-html="file.content"
+            />
+            <div class="project-list__file-time">{{ file.createTime }}</div>
           </div>
-        </div>
-      </n-collapse-item>
-    </n-collapse>
-  </div>
+          <div class="project-list__file-actions">
+            <NButton type="primary" size="small" @click="openFile(file)">查看</NButton>
+            <NButton type="default" size="small" @click="handleExportFile(file)">导出</NButton>
+          </div>
+        </NCard>
+      </div>
+      <div class="project-list__pagination">
+        <NPagination
+            v-model:page="currentPage"
+            :page-size="pageSize"
+            :page-count="pageCount"
+            @update:page="handlePageChange"
+        />
+      </div>
+    </div>
+  </NSpin>
+
 </template>
+
+<script setup>
+import { ref, computed, onMounted } from "vue";
+import { NCard, NButton, NPagination, NInput , NSpin} from "naive-ui";
+import { getProjectAndFiles } from "../../api/project.js";
+import { router } from "../../router/router.js";
+import {exportFile} from "../../api/file.js";
+
+const files = ref([]);
+const projects = ref([]);
+const currentPage = ref(1);
+const pageSize = ref(5);
+const input = ref('');
+const loading = ref(true)
+
+onMounted(() => {
+  getProjectAndFiles().then((res) => {
+    files.value = res.data.data;
+    loading.value = false;
+  });
+});
+
+const openFile = (file) => {
+  router.push(`/fileView/${file.fileId}`);
+};
+
+const handleExportFile = (file) => {
+  exportFile(file.fileId, file.fileName)
+};
+
+const handleSearch = () => {
+  getProjectAndFiles(input.value).then((res) => {
+    files.value = res.data.data;
+  });
+};
+
+const paginatedFiles = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value;
+  const end = start + pageSize.value;
+  return files.value.slice(start, end);
+});
+
+const pageCount = computed(() => {
+  return Math.ceil(files.value.length / pageSize.value);
+});
+
+const handlePageChange = (page) => {
+  currentPage.value = page;
+};
+</script>
 
 <style scoped>
 .project-list {
   padding: 20px;
-  background-color: #fff;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   height: 100%;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
-.project-list__title {
-  font-size: 24px;
-  font-weight: bold;
-  margin-bottom: 20px;
+.search-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.project-list__collapse {
-  border: none;
+.search-content * {
+  margin: 2em;
+}
+
+.project-list__cards {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  gap: 16px;
 }
 
 .project-list__item {
-  margin-bottom: 10px;
-}
-
-.project-list__item .n-collapse-item__header {
-  font-size: 18px;
-  font-weight: bold;
-  padding: 10px;
-  background-color: #f5f5f5;
-  cursor: pointer;
-}
-
-.project-list__files {
-  padding: 10px;
-}
-
-.project-list__file {
+  border-radius: 8px;
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  border-bottom: 1px solid #eee;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.project-list__item:hover {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
 }
 
 .project-list__file-info {
-  flex: 1;
+  margin-bottom: 16px;
 }
 
 .project-list__file-name {
+  font-size: 18px;
+  color: #333;
+}
+
+.project-list__project-name {
   font-size: 16px;
-  font-weight: bold;
+  color: #666;
+  margin-top: 4px;
 }
 
 .project-list__file-time {
   font-size: 14px;
   color: #999;
-  margin-left: 10px;
+  margin-top: 4px;
 }
 
 .project-list__file-actions {
   display: flex;
-  align-items: center;
+  justify-content: flex-end;
 }
 
 .project-list__file-actions .n-button {
-  margin-left: 10px;
+  margin-left: 8px;
+}
+
+.project-list__pagination {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
 }
 </style>
-
-
-<script setup>
-import {NCollapse, NCollapseItem, NButton} from "naive-ui";
-import {ref} from "vue";
-
-const projects = ref([
-  {
-    id: 1,
-    name: "项目1",
-    files: [
-      {
-        id: 1,
-        name: "文件1",
-        createTime: "2023-06-01 14:00",
-      },
-      {
-        id: 2,
-        name: "文件2",
-        createTime: "2023-06-01 15:00",
-      },
-      // 更多文件数据...
-    ]
-  },
-  {
-    id: 2,
-    name: "项目2",
-    files: [
-      {
-        id: 3,
-        name: "文件3",
-        createTime: "2023-06-01 16:00",
-      },
-      {
-        id: 4,
-        name: "文件4",
-        createTime: "2023-06-01 17:00",
-      },
-      // 更多文件数据...
-    ]
-  },
-  // 更多项目数据...
-])
-</script>
-

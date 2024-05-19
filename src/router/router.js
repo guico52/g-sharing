@@ -8,6 +8,7 @@ import PermissionView from "../views/menu/ManageUserView.vue";
 import DeletedFileView from "../views/menu/DeletedFileView.vue";
 import MyInfoView from "../views/menu/MyInfoView.vue";
 import CollaborativeEditorView from "../views/CollaborativeEditorView.vue";
+import {message} from "../api/api.js";
 const routes = [
     {
         path: '/login',
@@ -36,6 +37,10 @@ const routes = [
                 path: '/groupChat',
                 name: 'GroupChatView',
                 component: () => import("../views/main/GroupChatView.vue")
+            }, {
+                path: '/privateChat'
+                ,name: 'PrivateChatView',
+                component: () => import("../views/main/PrivateChatView.vue")
             }
         ]
     },{
@@ -132,13 +137,12 @@ router.beforeEach((to, from, next) => {
     // 检查用户是否已经登录
     const isAuthenticated = !!localStorage.getItem('token');
 
-    if (to.name !== 'LoginAndRegisterView' && !isAuthenticated) {
+    if ((to.name !== 'LoginAndRegisterView' && to.name !== 'IntroduceView') && !isAuthenticated) {
         // 如果用户尚未登录，并且尝试访问非登录页面，则重定向到登录页面
+        message.warning('请先登录')
         next({ name: 'LoginAndRegisterView' });
-    } else if (to.name === 'LoginAndRegisterView' && isAuthenticated) {
-        // 如果用户已经登录，并且尝试访问登录页面，则重定向到主页
-        next({ name: 'Home' });
-    } else {
+
+    }  else {
         // 在其他情况下，正常进行导航
         next();
     }

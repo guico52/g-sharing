@@ -9,7 +9,7 @@ export function getProjectDetail(id, name) {
 }
 
 export function createProject(name, description, userGroupId) {
-    return post("/project/create", {name, description, userGroupId})
+    return post("/project/create", {name, description, userGroupId}, {userGroupId: userGroupId})
 }
 
 export function getUserGroups(name){
@@ -25,10 +25,9 @@ export function updateProject(id, name, description, userGroupId){
         id: id,
         name: name,
         description: description,
-}, {userGroupId: userGroupId})
-}
+}, {userGroupId: userGroupId})}
 
-export function search(keyword) {
-    return post("/project/search", {content: keyword})
+export function getProjectAndFiles(keyword){
+    return post("/project/listProjectAndFiles", {keyword: keyword})
 }
 

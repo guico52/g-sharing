@@ -19,3 +19,11 @@ export function exportBackupFile(id, name){
 export function elsSearch(keyword){
     return post('/backup/elsSearch', {keyword: keyword})
 }
+
+export function restoreBackupFile(id){
+    return post('/backup/recover', {id: id})
+}
+
+export function deleteBackupFile(id){
+    return post('/backup/delete', {id: id})
+}

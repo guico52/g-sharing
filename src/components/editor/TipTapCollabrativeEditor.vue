@@ -57,7 +57,6 @@ const getRandomElement = list => {
   return list[Math.floor(Math.random() * list.length)]
 }
 export default {
-
   components: {
     EditorContent,
     MenuBar,
@@ -255,12 +254,13 @@ export default {
       console.log("Complete data received:", finalData);
     },
 
-    beforeUnmount() {
-      this.editor.destroy()
-      this.provider.destroy()
-      this.websocketPrivider.closeWebSocketConnection()
-    },
-  }
+
+  },
+  beforeUnmount() {
+    this.editor.destroy()
+    this.provider.destroy()
+    this.websocketPrivider.closeWebSocketConnection()
+  },
 }
 </script>
 

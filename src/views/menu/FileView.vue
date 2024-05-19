@@ -54,10 +54,10 @@
       <template #default>
         <div class="modal-content">
           <div class="modal-title">
-            添加项目
+            添加文件
           </div>
           <n-input v-model:value="state.fileName" placeholder="文件名称" class="modal-content-input"></n-input>
-          <n-button @click="addFile">添加</n-button>
+          <n-button @click="handleAddFile">添加</n-button>
         </div>
       </template>
     </n-modal>
@@ -90,9 +90,9 @@ export default defineComponent({
     router() {
       return router
     },
-    addFile() {
+    handleAddFile() {
       const projectId = router.currentRoute.value.params.id;
-      addFile(this.state.fileName, this.state.userGroupId).then(
+      addFile(this.state.fileName, projectId, this.state.userGroupId).then(
           () => {
             getProjectDetail(projectId).then(res => {
               this.state.fileList = res.data.data;
@@ -298,13 +298,14 @@ export default defineComponent({
     ]
     onMounted(() => {
       // 获取路径
-      getProjectDetail(router.currentRoute.value.params.id).then(res => {
+      const id = router.currentRoute.value.params.id;
+      getProjectDetail(id).then(res => {
         state.fileList = res.data.data;
       })
-      getUserGroupIdByProjectId(router.currentRoute.value.params.id).then(res => {
+      getUserGroupIdByProjectId(id).then(res => {
         state.userGroupId = res.data.data;
       })
-      getUserGroupPermissionByProjectId(router.currentRoute.value.params.id).then(res => {
+      getUserGroupPermissionByProjectId(id).then(res => {
         state.permission = res.data.data;
       })
 

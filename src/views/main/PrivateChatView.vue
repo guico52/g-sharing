@@ -1,65 +1,56 @@
 <template>
-  <div>
-    <NSpin :show="loading">
-      <NLayout has-sider class="layout">
-        <NLayoutSider
-            :collapsed="collapsed"
-            :width="200"
-            collapse-mode="width"
-            show-trigger
-            @collapse="collapsed = true"
-            @expand="collapsed = false"
-            class="layout-sider"
-        >
-          <NMenu
-              class="menu"
-              v-model:value="selectedGroupId"
-              :options="menuOption"
-              :collapsed-width="64"
-              :collapsed-icon-size="24"
-              @update:value="handleMenuSelectChange"
-          />
-        </NLayoutSider>
-        <NLayout class="right-layout">
-          <NLayoutContent>
-            <div class="message-panel">
-              <ChatMessage
-                  v-for="message in messages"
-                  :key="message.index"
-                  :message="message"
-              />
-            </div>
-          </NLayoutContent>
-          <NLayoutFooter class="layout-footer">
-            <div class="input-panel">
-              <NInput placeholder="请输入聊天内容" v-model:value="input" class="input-box" @keydown.enter="sendMessage" />
-              <NButton type="primary" class="send-button" @click="sendMessage">发送</NButton>
-            </div>
-          </NLayoutFooter>
-        </NLayout>
+  <NSpin :show="loading">
+    <NLayout has-sider class="layout">
+      <NLayoutSider
+          :collapsed="collapsed"
+          :width="200"
+          collapse-mode="width"
+          show-trigger
+          @collapse="collapsed = true"
+          @expand="collapsed = false"
+          class="layout-sider"
+      >
+        <NMenu
+            class="menu"
+            v-model:value="selectedGroupId"
+            :options="menuOption"
+            :collapsed-width="64"
+            :collapsed-icon-size="24"
+            @update:value="handleMenuSelectChange"
+        />
+      </NLayoutSider>
+      <NLayout class="right-layout">
+        <NLayoutContent>
+          <div class="message-panel">
+            <ChatMessage
+                v-for="message in messages"
+                :key="message.index"
+                :message="message"
+            />
+          </div>
+        </NLayoutContent>
+        <NLayoutFooter class="layout-footer">
+          <div class="input-panel">
+            <NInput placeholder="请输入聊天内容" v-model:value="input" class="input-box" @keydown.enter="sendMessage" />
+            <NButton type="primary" class="send-button" @click="sendMessage">发送</NButton>
+          </div>
+        </NLayoutFooter>
       </NLayout>
-    </NSpin>
-
-  </div>
+    </NLayout>
+  </NSpin>
 </template>
 
 <script setup>
 import {onMounted, onUnmounted, ref} from "vue";
 import { NLayout, NLayoutSider, NLayoutContent, NLayoutFooter, NMenu, NInput, NButton, NSpin } from "naive-ui";
 import ChatMessage from "./componet/ChatMessage.vue";
-
-import {listGroupChat, listUserGroup} from "../../api/chat.js";
+import {listUser, listPrivateChat} from "../../api/chat.js";
 import {message} from "../../api/api.js"
-import {GroupChatWebSocket} from "../../ws/groupChatWebSocket.js";
+import {PrivateChatWebSocket} from "../../ws/privateChatWebSocket.js";
 
-const groups = ref([
-  { id: 1, name: 'group1' },
-  { id: 2, name: 'group2' },
-  { id: 3, name: 'group3' },
-]);
-
-const menuOption = ref([]);
+const users = ref([]);
 const loading = ref(true);
+const menuOption = ref([]);
 const selectedGroupId = ref('');
 const collapsed = ref(false);
 const messages = ref([]);
@@ -67,15 +58,15 @@ let websocket = null;
 const input = ref('');
 
 onMounted(() => {
-  listUserGroup().then(res => {
-    groups.value = res.data.data;
-    loading.value = false;
-    menuOption.value = groups.value.map(group => {
+  listUser().then(res => {
+    users.value = res.data.data;
+    menuOption.value = users.value.map(group => {
       return {
         label: group.name,
         key: group.id,
       }
     });
+    loading.value = false;
   })
 });
 
@@ -94,14 +85,14 @@ onUnmounted(() => {
 });
 
 const handleMenuSelectChange = (value) => {
-  listGroupChat(value).then(res => {
+  listPrivateChat(value).then(res => {
     messages.value = res.data.data;
   });
   selectedGroupId.value = value;
   if(websocket){
     websocket.close();
   }
-  websocket = new GroupChatWebSocket(value, data => {
+  websocket = new PrivateChatWebSocket(value, data => {
     messages.value.push(data);
   });
 }

@@ -25,7 +25,7 @@ export function updateFile(id, name){
 }
 
 export function exportFile(id, name) {
-    return download("/file/export", {id: id}, name, {fileId: fileId})
+    return download("/file/export", {id: id}, name, {fileId: id})
 }
 
 export function search(id, keyword) {

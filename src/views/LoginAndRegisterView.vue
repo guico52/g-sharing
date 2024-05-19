@@ -31,6 +31,7 @@ import { login, register } from "../api/login.js";
 import { defineComponent, reactive } from "vue";
 import { router } from "../router/router.js";
 import { NInput, NButton } from "naive-ui";
+import {message} from "../api/api.js";
 
 export default defineComponent({
   components: {
@@ -57,10 +58,11 @@ export default defineComponent({
           .then(res => {
             console.log(res);
             if (res.data.data) {
+              message.success("登录成功")
               console.log(res.data.data.token);
               localStorage.removeItem('token')
               localStorage.setItem('token', res.data.data.token);
-              router.push({name: 'MenuView'});
+              router.push({name: 'IntroduceView'});
             }
           })
           .catch(err => {

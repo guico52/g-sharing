@@ -20,12 +20,15 @@ const columns = [
     'key': 'projectName'
   },{
     title: '文件名',
-    key: 'fileName'
+    key: 'fileName',
+    render: (row) => {
+      return h('div', {innerHTML: row.fileName})
+    }
   }, {
     title: '内容',
     key: 'highlight',
     render: (row) => {
-      return h('div', {innerHTML: row.highlight})
+      return h('div', {innerHTML: row.textContentHighlight})
     }
   }, {
     title: '操作',

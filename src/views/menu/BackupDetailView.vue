@@ -14,8 +14,9 @@
 <script setup>
 import {NInput, NButton, NDataTable, NSpace, NEllipsis} from "naive-ui";
 import {h, onMounted, ref} from "vue";
-import {backupFileList, exportBackupFile} from "../../api/backup.js";
+import {backupFileList, deleteBackupFile, exportBackupFile, restoreBackupFile} from "../../api/backup.js";
 import {useRouter} from "vue-router";
+import {message} from "../../api/api.js";
 
 const columns = ref([
   {
@@ -45,7 +46,37 @@ const columns = ref([
         h(NButton, {
           onClick: () => {
             exportBackupFile(row.id, row.fileName)
-          }}, '导出')
+          }}, '导出'),
+        h(NButton, {
+          onClick: () => {
+            restoreBackupFile(row.id).then(
+                () => {
+                  backupFileList(fileId).then(
+                      res => {
+                        data.value = res.data.data
+                      }
+                  )
+                  message.success('恢复成功')
+                }
+            )
+          }
+        }, '恢复'),
+        h(NButton, {
+          onClick: () => {
+            deleteBackupFile(row.id).then(
+
+                () => {
+                  message.success('删除成功')
+                  backupFileList(fileId).then(
+                      res => {
+                        data.value = res.data.data
+                      }
+                  )
+                }
+
+            )
+          }
+        }, '删除')
       ])
     }
   }
