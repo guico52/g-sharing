@@ -11,7 +11,7 @@ import {
   PeopleOutline,
   LogOutOutline,
   PeopleCircleOutline,
-  ArrowBackCircleOutline, ChatbubblesOutline
+  ArrowBackCircleOutline, ChatbubblesOutline, ChatbubbleOutline, Chatbubbles, ArrowUpCircleOutline
 } from "@vicons/ionicons5";
 import {router} from "../router/router.js";
 import {getMySysPermission} from "../api/myInfo.js";
@@ -23,20 +23,12 @@ const collapsed = ref(false)
 const menuOption = ref([
   {
     label: () => h(
-        'label',
-        {class: 'menu-header-item'},
-        'welcome to GSharing',
-    ),
-    key: 'header',
-  },
-  {
-    label: () => h(
         RouterLink,
         {
           class: 'menu-item',
           to: '/searchFile',
         }, {
-          default: () => '搜索'
+          default: () => '知识库检索'
         }),
     key: 'permission',
     icon: renderIcon(SearchOutline)
@@ -48,7 +40,7 @@ const menuOption = ref([
           class: 'menu-item',
           to: '/project'
         }, {
-          default: () => '项目'
+          default: () => '知识库'
         }
     ),
     key: 'file',
@@ -61,22 +53,11 @@ const menuOption = ref([
           class: 'menu-item',
           to: '/backup',
         }, {
-          default: () => '备份'
+          default: () => '文件备份'
         }),
     key: 'template',
     icon: renderIcon(DocumentOutline)
   }, {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/userGroup',
-        }, {
-          default: () => '用户组'
-        }),
-    key: 'user',
-    icon: renderIcon(PeopleOutline)
-  },  {
     label: () => h(
         RouterLink,
         {
@@ -88,26 +69,37 @@ const menuOption = ref([
     key: 'deletedFile',
     icon: renderIcon(TrashOutline)
   }, {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/manageUser'
-        }, {
-          default: () => '用户管理'
-        }),
-    key: 'manageUser',
-    icon: renderIcon(PeopleCircleOutline)
-  },{
     label: () => h (
         RouterLink,
         {
           class: 'menu-item',
           to: '/meetingList'
         }, {
-          default: () => '会议'
+          default: () => '会议管理'
         }),
     key: 'meetingList',
+    icon: renderIcon(Chatbubbles)
+  }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/privateChat',
+        }, {
+          default: () => '私聊'
+        }),
+    key: 'privateChat',
+    icon: renderIcon(ChatbubbleOutline)
+  }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/groupChat',
+        }, {
+          default: () => '群聊'
+        }),
+    key: 'groupChat',
     icon: renderIcon(ChatbubblesOutline)
   }, {
     label: () => h(
@@ -120,16 +112,44 @@ const menuOption = ref([
         }),
     key: 'myInfo',
     icon: renderIcon(AccessibilityOutline)
+  }, {
+    label: () => h(
+        'div',
+        {},
+        {default: () =>'处理审批'}
+    ),
+    key: 'approval',
+    icon: renderIcon(ArrowUpCircleOutline)
+  }, {
+    label: () => h(
+        'div',
+        {},
+        {default: () =>'处理汇报'}
+    ),
+    key: 'report',
+    icon: renderIcon(ArrowBackCircleOutline)
+  } ,{
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/userGroup',
+        }, {
+          default: () => '用户组管理'
+        }),
+    key: 'user',
+    icon: renderIcon(PeopleOutline)
   },{
     label: () => h(
         RouterLink,
         {
           class: 'menu-item',
-          to: '/',
+          to: '/manageUser'
         }, {
-          default: () => '返回主页'
+          default: () => '用户管理'
         }),
-    icon: renderIcon(ArrowBackCircleOutline)
+    key: 'manageUser',
+    icon: renderIcon(PeopleCircleOutline)
   },{
     label: () => h(
         'label',
@@ -186,6 +206,7 @@ function renderIcon(icon) {
               class="menu-sider"
 
           >
+            <div v-show="!collapsed" class="menu-title">管理员后台</div>
             <n-menu
                 :options="menuOption"
                 :collapsed="collapsed"
@@ -211,12 +232,17 @@ function renderIcon(icon) {
 
 .menu {
   width: 100vw;
-  height: 100vh;
 }
 
 .menu-content-container {
   height: 100vh;
   overflow-x: scroll;
+}
+.menu-title{
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+  margin: 10px 0;
 }
 
 
