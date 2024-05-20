@@ -6,7 +6,6 @@ import StarterKit from '@tiptap/starter-kit'
 import {onMounted, onUnmounted, ref} from "vue";
 import {backupFileContent} from "../api/backup.js";
 import {useRoute} from "vue-router";
-import {login} from "../api/login.js";
 
 const route = useRoute()
 const content = ref('');
