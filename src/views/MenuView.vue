@@ -103,17 +103,6 @@ const menuOption = ref([
     icon: renderIcon(ChatbubblesOutline)
   }, {
     label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/myInfo',
-        }, {
-          default: () => '我的信息'
-        }),
-    key: 'myInfo',
-    icon: renderIcon(AccessibilityOutline)
-  }, {
-    label: () => h(
         'div',
         {},
         {default: () =>'处理审批'}
@@ -150,6 +139,17 @@ const menuOption = ref([
         }),
     key: 'manageUser',
     icon: renderIcon(PeopleCircleOutline)
+  },{
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/myInfo',
+        }, {
+          default: () => '我的信息'
+        }),
+    key: 'myInfo',
+    icon: renderIcon(AccessibilityOutline)
   },{
     label: () => h(
         'label',
