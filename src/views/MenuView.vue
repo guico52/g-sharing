@@ -1,6 +1,6 @@
 <script setup>
 import {h, onMounted, ref} from "vue";
-import { NIcon, NLayout, NLayoutSider, NMenu} from "naive-ui";
+import { NIcon, NLayout, NLayoutSider, NMenu, NButton} from "naive-ui";
 import {RouterLink} from "vue-router";
 import {
   DocumentsOutline,
@@ -11,7 +11,7 @@ import {
   PeopleOutline,
   LogOutOutline,
   PeopleCircleOutline,
-  ArrowBackCircleOutline, ChatbubblesOutline
+  ArrowBackCircleOutline, ChatbubblesOutline, PaperPlaneOutline
 } from "@vicons/ionicons5";
 import {router} from "../router/router.js";
 import {getMySysPermission} from "../api/myInfo.js";
@@ -23,20 +23,12 @@ const collapsed = ref(false)
 const menuOption = ref([
   {
     label: () => h(
-        'label',
-        {class: 'menu-header-item'},
-        'welcome to GSharing',
-    ),
-    key: 'header',
-  },
-  {
-    label: () => h(
         RouterLink,
         {
           class: 'menu-item',
           to: '/searchFile',
         }, {
-          default: () => '搜索'
+          default: () => '知识库检索'
         }),
     key: 'permission',
     icon: renderIcon(SearchOutline)
@@ -48,68 +40,46 @@ const menuOption = ref([
           class: 'menu-item',
           to: '/project'
         }, {
-          default: () => '项目'
+          default: () => '知识库项目'
         }
     ),
     key: 'file',
     icon: renderIcon(DocumentsOutline)
 
   }, {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/backup',
-        }, {
-          default: () => '备份'
-        }),
-    key: 'template',
-    icon: renderIcon(DocumentOutline)
-  }, {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/userGroup',
-        }, {
-          default: () => '用户组'
-        }),
-    key: 'user',
-    icon: renderIcon(PeopleOutline)
-  },  {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/deletedFile',
-        }, {
-          default: () => '回收站'
-        }),
-    key: 'deletedFile',
-    icon: renderIcon(TrashOutline)
-  }, {
-    label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/manageUser'
-        }, {
-          default: () => '用户管理'
-        }),
-    key: 'manageUser',
-    icon: renderIcon(PeopleCircleOutline)
-  },{
     label: () => h (
         RouterLink,
         {
           class: 'menu-item',
           to: '/meetingList'
         }, {
-          default: () => '会议'
+          default: () => '会议列表'
         }),
     key: 'meetingList',
     icon: renderIcon(ChatbubblesOutline)
   }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/groupChat'
+        }, {
+          default: () => '群聊'
+        }),
+    key: 'groupChat',
+    icon: renderIcon(PeopleOutline)
+  }, {
+    label: () => h(
+        RouterLink,
+        {
+          class: 'menu-item',
+          to: '/privateChat'
+        }, {
+          default: () => '私聊'
+        }),
+    key: 'privateChat',
+    icon: renderIcon(PeopleCircleOutline)
+  },{
     label: () => h(
         RouterLink,
         {
@@ -120,37 +90,50 @@ const menuOption = ref([
         }),
     key: 'myInfo',
     icon: renderIcon(AccessibilityOutline)
+  }, {
+    label: () => h(
+        'div',
+        {},
+        {default: () => '我的审批'}
+    ),
+    key: 'submitApproval',
+    icon: renderIcon(DocumentOutline)
   },{
     label: () => h(
-        RouterLink,
-        {
-          class: 'menu-item',
-          to: '/',
-        }, {
-          default: () => '返回主页'
-        }),
-    icon: renderIcon(ArrowBackCircleOutline)
-  },{
+        'div',
+        {},
+        {default: () => '汇报记录'}
+    ),
+    key: 'reportRecord',
+    icon: renderIcon(PaperPlaneOutline)
+  }, {
     label: () => h(
         'label',
-        {
-          class: 'menu-header-item',
-          onClick: () => {
-            localStorage.removeItem('token')
-            router.push({name: 'LoginAndRegisterView'})
-          }
-        },
+        // {
+        //   class: 'menu-header-item',
+        // },
         '退出登录'
     ),
     key: 'logout',
-    icon: renderIcon(LogOutOutline)
+    icon: renderIcon(LogOutOutline),
+    props: {
+      onClick: () => {
+        localStorage.removeItem('token')
+        router.push({name: 'LoginAndRegisterView'})
+      }
+    },
+
   }
 ])
 const systemPermission = ref(0)
 
-const handleMenuItemState = item => {
-  menuActiveKey.value = item.key
+const handleMenuItemState = key => {
+  if(key === 'logout'){
+    localStorage.removeItem('token')
+    router.push({name: 'LoginAndRegisterView'})
+  }
 }
+
 
 onMounted(
     () => {
@@ -186,11 +169,14 @@ function renderIcon(icon) {
               class="menu-sider"
 
           >
+            <div v-show ="!collapsed"
+                 class="menu-title">在线系统</div>
             <n-menu
                 :options="menuOption"
                 :collapsed="collapsed"
                 :collapsed-width="64"
                 :collapsed-icon-size="24"
+                :on-update:value="handleMenuItemState"
                 class="menu"
             >
             </n-menu>
@@ -211,13 +197,19 @@ function renderIcon(icon) {
 
 .menu {
   width: 100vw;
-  height: 100vh;
 }
 
 .menu-content-container {
   height: 100vh;
   overflow-x: scroll;
 }
+.menu-title {
+  font-size: 20px;
+  font-weight: bold;
+  padding: 10px 0;
+  text-align: center;
+}
+
 
 
 </style>

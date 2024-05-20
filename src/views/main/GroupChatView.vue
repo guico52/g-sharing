@@ -11,6 +11,8 @@
             @expand="collapsed = false"
             class="layout-sider"
         >
+          <div class="menu-title"
+               v-show="!collapsed">小组列表</div>
           <NMenu
               class="menu"
               v-model:value="selectedGroupId"
@@ -130,17 +132,28 @@ body {
 .layout {
   display: flex;
   height: 100vh;
+  margin-left: 10em;
   background: linear-gradient(135deg, var(--bg-200), #bdc3c7);
+
+}
+
+.menu-title {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--text-light);
+  padding: 20px;
 }
 
 .menu {
-  height: 100vh;
+
   background: var(--bg-100);
   color: var(--text-light);
   padding-top: 20px; /* Add some padding to the top */
 }
 
 .layout-sider {
+  height: 100vh;
   flex: 1;
   box-shadow: 4px 0 8px rgba(0, 0, 0, 0.1);
 }
