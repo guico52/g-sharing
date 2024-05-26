@@ -1,160 +1,97 @@
 <template>
-  <div class="content">
+  <div class="container">
     <div class="search-content">
       <div class="search-content-inner">
-          <n-input v-model:value="state.input"
-                   class="search-input"
-                   round
-                   placeholder="搜索"/>
-
-<!--        </n-dropdown>-->
-        <n-button @click="searchFile">搜索</n-button>
-        <n-button @click="state.showModal = true">添加文件</n-button>
+        <n-input v-model:value="state.input" class="search-input" round placeholder="搜索" />
+        <n-button type="primary" icon="search" @click="searchFile">搜索</n-button>
+        <n-button type="success" icon="plus" @click="state.showModal = true">添加文件</n-button>
       </div>
       <div class="upload-content">
-        <n-upload :action="state.uploadUrl"
-                  :accept="state.fileAccept"
-                  :data="state.fileData"
-                  :headers="state.headers"
-                  @finish="getFileList"
-        >
-          <n-button>上传文件</n-button>
+        <n-upload :action="state.uploadUrl" :accept="state.fileAccept"  :data="state.fileData" :headers="state.headers" @finish="getFileList">
+          <n-button type="info">上传文件</n-button>
         </n-upload>
       </div>
     </div>
-    <n-data-table :columns="state.tableColumns" :data="state.fileList">
-      <template #default="{row}">
-        <div>{{row.fileName}}</div>
-        <div>
-          <n-button
-            @click="handleDeleteFile(row.fileId)"
-            v-pms-file="UserFilePermissionEnum.ADMIN"
-          >
-            删除
-          </n-button>
-          <n-button
-            @click="$router.push({name: 'fileView', query: {fileId: row.fileId}})"
-            v-pms-file="UserFilePermissionEnum.READ_ONLY"
-          >
-            浏览
-          </n-button>
-          <n-button
-            @click="handleExportFile(row.fileId)"
-            v-pms-file="UserFilePermissionEnum.READ_ONLY"
-          >
-            导出
-          </n-button>
-        </div>
-
-      </template>
-    </n-data-table>
+    <n-data-table :columns="state.tableColumns" :pagination="{pageSize: 20}"  :data="state.fileList" bordered />
     <n-modal v-model:show="state.showModal" class="modal">
-      <template #title>
-      </template>
       <template #default>
         <div class="modal-content">
-          <div class="modal-title">
-            添加文件
-          </div>
-          <n-input v-model:value="state.fileName" placeholder="文件名称" class="modal-content-input"></n-input>
-          <n-button @click="handleAddFile">添加</n-button>
+          <div class="modal-title">添加文件</div>
+          <n-input v-model:value="state.fileName" placeholder="文件名称" class="modal-content-input" />
+          <n-button type="primary" @click="handleAddFile">添加</n-button>
         </div>
       </template>
     </n-modal>
   </div>
 </template>
-<script>
-import {defineComponent, h, onMounted, reactive, toRefs} from "vue";
-import {router} from "../../router/router.js";
-import {BASE_URL, dialog, message} from "../../api/api.js";
-import {getProjectDetail} from "../../api/project.js";
-import {
-  addFile,
-  deleteFile,
-  exportFile,
-  getFilePermission,
-  getUserGroupIdByProjectId, getUserGroupPermissionByProjectId,
-  search,
-  updateFilePermission
-} from "../../api/file.js";
-import {NInput, NButton, NModal, NDataTable, NDropdown, NUpload, NSpace, NRadioGroup, NRadio} from "naive-ui";
-import {UserFilePermissionEnum} from '../../util/enums.js';
 
+<script>
+import { defineComponent, h, onMounted, reactive, toRefs } from "vue";
+import { router } from "../../router/router.js";
+import { BASE_URL, dialog, message } from "../../api/api.js";
+import { getProjectDetail } from "../../api/project.js";
+import { addFile, deleteFile, exportFile, getFilePermission, getUserGroupIdByProjectId, getUserGroupPermissionByProjectId, search, updateFilePermission } from "../../api/file.js";
+import { NInput, NButton, NModal, NDataTable, NUpload, NSpace, NRadioGroup, NRadio } from "naive-ui";
+import { UserFilePermissionEnum } from '../../util/enums.js';
 export default defineComponent({
   computed: {
     UserFilePermissionEnum() {
-      return UserFilePermissionEnum
+      return UserFilePermissionEnum;
     }
   },
   methods: {
-    router() {
-      return router
-    },
     handleAddFile() {
       const projectId = router.currentRoute.value.params.id;
-      addFile(this.state.fileName, projectId, this.state.userGroupId).then(
-          () => {
-            getProjectDetail(projectId).then(res => {
-              this.state.fileList = res.data.data;
-            })
-          }
-      )
+
+      addFile(this.state.fileName, projectId, this.state.userGroupId).then(() => {
+        getProjectDetail(projectId).then(res => {
+          this.state.fileList = res.data.data;
+        });
+      });
     },
     getFileList() {
       const id = router.currentRoute.value.params.id;
       getProjectDetail(id).then(res => {
         this.state.fileList = res.data.data;
-      })
-    },
-    handleDropSelected(key) {
-      router.push({name: 'fileView', query: {fileId: key}})
+      });
     },
     searchFile() {
-      console.log("search file")
       const id = router.currentRoute.value.params.id;
       search(id, this.state.input).then(res => {
-        this.state.dropdownOptions = []
-        const nameResult = res.data.data.name
-        const contentResult = res.data.data.content
-        // 对于nameResult， id为key, name为label，放到下拉框中
-        // 添加元素
+        this.state.dropdownOptions = [];
+        const nameResult = res.data.data.name;
+        const contentResult = res.data.data.content;
         nameResult.forEach(item => {
-          this.state.dropdownOptions.push({key: item.id, label: item.name})
-        })
-        // 添加分隔符
-        this.state.dropdownOptions.push({type: 'divider'})
-        // 对于contentResult， id为key, name为label，还有highlighted字段，放到下拉框中
+          this.state.dropdownOptions.push({ key: item.id, label: item.name });
+        });
+        this.state.dropdownOptions.push({ type: 'divider' });
         contentResult.forEach(item => {
-          this.state.dropdownOptions.push({key: item.id, label: item.name, highlighted: item.highlighted})
-        })
-      })
+          this.state.dropdownOptions.push({ key: item.id, label: item.name, highlighted: item.highlighted });
+        });
+      });
     }
-
-
   },
   components: {
     NInput,
     NButton,
     NModal,
     NDataTable,
-    NDropdown,
     NUpload,
     NSpace
   },
   setup() {
     const handleDeleteFile = (id) => {
-      deleteFile(id, state.userGroupId).then(
-          () => {
-            getProjectDetail(router.currentRoute.value.params.id).then(res => {
-              state.fileList = res.data.data;
-            })
-          }
-      )
-    }
+      deleteFile(id, state.userGroupId).then(() => {
+        getProjectDetail(router.currentRoute.value.params.id).then(res => {
+          state.fileList = res.data.data;
+        });
+      });
+    };
 
     const handleExportFile = (id, name) => {
-      exportFile(id, name)
-    }
+      exportFile(id, name);
+    };
+
     const state = reactive({
       tableColumns: [
         {
@@ -168,102 +105,104 @@ export default defineComponent({
         {
           title: '创建时间',
           key: 'createTime'
-        }, {
+        },
+        {
+          title: '更新时间',
+          key: 'updateTime'
+        },
+        {
           title: '操作',
           key: 'action',
-          render: (row) => {
-            return h(NSpace, {}, [
-                  h(NButton, {
-                    onClick: () => handleDeleteFile(row.fileId),
-                    pmsFile: UserFilePermissionEnum.ADMIN,
-                    style: {
-                      display: state.permission >=3 ? 'block' : 'none'
-                    },
-                  }, '删除'),
-                  h(NButton, {
-                    style: {
-                      display: row.permission >=1 ? 'block' : 'none'
-                    },
-                    onClick: () => router.push(`/fileView/${row.fileId}`),
-                    pmsFile: UserFilePermissionEnum.READ_ONLY
-                  }, '浏览'),
-                  h(NButton, {
-                    style: {
-                      display: row.permission>=1 ? 'block' : 'none'
-                    },
-                    onClick: () => handleExportFile(row.fileId, row.fileName),
-                    pmsFile: UserFilePermissionEnum.READ_ONLY
-                  }, '导出'),
-                  h(NButton, {
-                    style: {
-                      display: state.permission >=3 ? 'block' : 'none'
-                    },
-                    onClick: () => {
-                      const fileId = row.fileId;
-                      getFilePermission(fileId).then(
-                          res => {
-                            state.filePermissionList = res.data.data;
-                      }
-                      )
-                      dialog.info({
-                        title: '设置权限',
-                        content: () => h(NSpace, {}, [
-                            h(NDataTable, {
-                              columns: [
-                                {
-                                  title: '用户',
-                                  key: 'username'
-                                },
-                                {
-                                  title: '权限',
-                                  key: 'level',
-                                  render: (row) => h(NRadioGroup, {
-                                    value: row.level,
-                                    onUpdateValue: (value) => {
-                                      row.level = value
-                                    }
-                                  }, [
-                                      h(NSpace, null ,{
-                                        default: () => radioOptions.map(option => h(NRadio, {
-                                          value: option.value,
-                                          defaultChecked: row.level === option.value,
-                                          checked: row.level === option.value,
-                                        }, {default: () => option.label}))
-                                      })
-                                  ])
-                                }
-                              ],
-                              data: state.filePermissionList
+          render: (row) => h(NSpace, {}, [
+            h(NButton, {
+              type: 'error',
+              size: 'small',
+              icon: 'delete',
+              onClick: () => handleDeleteFile(row.fileId),
+              style: {
+                display: state.permission >= 3 ? 'block' : 'none'
+              }
+            }, '删除'),
+            h(NButton, {
+              type: 'info',
+              size: 'small',
+              icon: 'eye',
+              onClick: () => router.push(`/fileView/${row.fileId}`),
+              style: {
+                display: row.permission >= 1 || state.permission >= 2 ? 'block' : 'none'
+              }
+            }, '浏览'),
+            h(NButton, {
+              type: 'success',
+              size: 'small',
+              icon: 'download',
+              onClick: () => handleExportFile(row.fileId, row.fileName),
+              style: {
+                display: row.permission >= 1 || state.permission >= 2 ? 'block' : 'none'
+              }
+            }, '导出'),
+            h(NButton, {
+              type: 'warning',
+              size: 'small',
+              icon: 'setting',
+              onClick: () => {
+                const fileId = row.fileId;
+                getFilePermission(fileId).then(res => {
+                  state.filePermissionList = res.data.data;
+                });
+                dialog.info({
+                  title: '设置权限',
+                  content: () => h(NSpace, {}, [
+                    h(NDataTable, {
+                      columns: [
+                        {
+                          title: '用户',
+                          key: 'username'
+                        },
+                        {
+                          title: '权限',
+                          key: 'level',
+                          render: (row) => h(NRadioGroup, {
+                            value: row.level,
+                            onUpdateValue: (value) => {
+                              row.level = value;
+                            }
+                          }, [
+                            h(NSpace, null, {
+                              default: () => radioOptions.map(option => h(NRadio, {
+                                value: option.value,
+                                defaultChecked: row.level === option.value,
+                                checked: row.level === option.value
+                              }, { default: () => option.label }))
                             })
-                        ]),
-                        positiveText: '确定',
-                        negativeText: '取消',
-                        onPositiveClick: () => {
-                          const items = state.filePermissionList.map(
-                              item => {
-                                return {
-                                  id: item.id,
-                                  userId: item.userId,
-                                  level: item.level
-                                }
-                              }
-                          );
-                          updateFilePermission(items, state.userGroupId).then(
-                              () => message.success('设置成功')
-                          )
+                          ])
                         }
-                      })
-                    },
-                    pmsFile: UserFilePermissionEnum.ADMIN
-                  }, '设置权限')
-                ]
-            )
-          }
+                      ],
+                      data: state.filePermissionList
+                    })
+                  ]),
+                  positiveText: '确定',
+                  negativeText: '取消',
+                  onPositiveClick: () => {
+                    const items = state.filePermissionList.map(item => ({
+                      id: item.id,
+                      userId: item.userId,
+                      level: item.level
+                    }));
+                    updateFilePermission(items, state.userGroupId).then(() => message.success('设置成功'));
+                  }
+                });
+              },
+              style: {
+                display: row.permission >= 3 || state.permission >= 2 ? 'block' : 'none'
+              }
+            }, '设置权限')
+          ])
         }
       ],
       fileList: [],
       filePermissionList: [],
-      modalShow: false,
+      showModal: false,
       fileName: '',
       uploadUrl: BASE_URL + '/file/upload',
       fileAccept: '.doc,.docx',
@@ -277,49 +216,54 @@ export default defineComponent({
       showDropdown: false,
       dropdownOptions: [],
       userGroupId: '',
-      permission: 0,
-    })
-    const stateToRefs = toRefs(state);
+      permission: 0
+    });
 
     const radioOptions = [
       {
-        label:'不可读',
+        label: '不可读',
         value: UserFilePermissionEnum.UNREADABLE
-      }, {
+      },
+      {
         label: '只读',
         value: UserFilePermissionEnum.READ_ONLY
-      }, {
+      },
+      {
         label: '读写',
         value: UserFilePermissionEnum.READ_WRITE
-      }, {
+      },
+      {
         label: '管理员',
         value: UserFilePermissionEnum.ADMIN
       }
-    ]
+    ];
+
     onMounted(() => {
-      // 获取路径
       const id = router.currentRoute.value.params.id;
       getProjectDetail(id).then(res => {
         state.fileList = res.data.data;
-      })
+      });
       getUserGroupIdByProjectId(id).then(res => {
         state.userGroupId = res.data.data;
-      })
+      });
       getUserGroupPermissionByProjectId(id).then(res => {
         state.permission = res.data.data;
-      })
+      });
+    });
 
-
-    })
     return {
-      state, stateToRefs, handleExportFile, handleDeleteFile
-    }
+      state, handleExportFile, handleDeleteFile
+    };
   }
-})
+});
 </script>
 
-
 <style scoped>
+.container {
+  padding: 1.5em;
+  border-radius: 0.5em;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 .search-content {
   display: flex;
@@ -344,7 +288,7 @@ export default defineComponent({
 }
 
 .search-content .search-input {
-  width: 60%
+  width: 60%;
 }
 
 .modal {
@@ -373,5 +317,14 @@ export default defineComponent({
 .modal-title, .project-modal-content-title {
   font-size: 24px;
   margin: 1em;
+}
+
+button {
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 </style>

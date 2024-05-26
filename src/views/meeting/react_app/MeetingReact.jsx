@@ -1,20 +1,12 @@
 import '@livekit/components-styles';
 import {
-    CarouselLayout,
-    ControlBar,
-    GridLayout,
-    LiveKitRoom,
-    ParticipantTile,
-    RoomAudioRenderer, useParticipants, useTracks,
-    FocusLayout,
-    useRoomContext,
 
+    LiveKitRoom,
     VideoConference, ParticipantName,
 } from '@livekit/components-react';
 import {RoomServiceClient} from 'livekit-server-sdk'
-import {RoomEvent, Track} from "livekit-client";
 import {useCallback, useEffect, useState} from "react";
-import {getToken, kickUser, listParticipants, muteUser, unmuteUser} from "../../../api/meeting.js";
+import {getToken, isHost, kickUser, listParticipants, muteUser, unmuteUser} from "../../../api/meeting.js";
 import {router} from "../../../router/router.js";
 import {NModal} from "naive-ui";
 import {useHotkeys} from "react-hotkeys-hook";
@@ -25,15 +17,19 @@ const serverUrl = 'ws://101.33.210.228:7880';
 const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMzBhOGQ1YmYzNzk0ZmIyYjBiY2JlYzE0MmExY2RlZiIsImlzcyI6ImRldmtleSIsIm5hbWUiOiJyb290IiwidmlkZW8iOnsicm9vbUpvaW4iOnRydWUsInJvb20iOiJ0ZXN0MiJ9LCJleHAiOjE3MTU4OTU4OTEsImp0aSI6ImQzMGE4ZDViZjM3OTRmYjJiMGJjYmVjMTQyYTFjZGVmIn0.SsBz-FU0-2ruC4AqcVut9-SG4uSQ0YIX3WwgF9lS3Go';
 
 export default function MeetingReact() {
-    const name = router.currentRoute.value.params.name;
+    const name = window.location.href.split('/').pop();
     const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
     const [token, setToken] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [data, setData] = useState([]);
     const [local, setLocal] = useState();
+    const [host, setHost] = useState(false);
     useHotkeys('ctrl+alt', async () => {
-        updateDate();
-        setShowModal(!showModal);
+        if(host) {
+            updateDate();
+            setShowModal(!showModal);
+        }
+
     })
 
     const updateDate = useCallback(() => {
@@ -46,12 +42,23 @@ export default function MeetingReact() {
     }, [])
 
     useEffect(() => {
-        const name = router.currentRoute.value.params.name;
+        const name = window.location.href.split('/').pop();
         getToken(name).then(
             res => {
-                setToken(res.data.data);
+                if(res.data.code=== 200)
+                    setToken(res.data.data);
+                else {
+                    router.go(-1);
+                }
             }
         );
+        isHost(name).then(
+            res => {
+                if(res.data.code === 200) {
+                    setHost(res.data.data);
+                }
+            });
+
     }, []);
 
 
@@ -90,7 +97,6 @@ export default function MeetingReact() {
                 {/* Controls for the user to start/stop audio, video, and screen
       share tracks and to leave the room. */}
 
-                <ControlBar></ControlBar>
                 {/*<OnlineUsers/>*/}
                 <Modal open={showModal}
                        onOk={() => setShowModal(!showModal)}
@@ -123,7 +129,7 @@ export default function MeetingReact() {
                                 </Space>
                             </div>
 
-                    )) : <div key={'unconnected'}>未连接到会议</div>}
+                    )) : <div key={'unconnected'}>无其他成员</div>}
                 </Modal>
             </LiveKitRoom>
     );

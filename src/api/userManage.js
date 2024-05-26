@@ -17,3 +17,6 @@ export function updateUserPermission(id, level){
 }
 
 
+export function updatePassword(id, password){
+    return post('/user/updatePassword', {userId: id, password: password})
+}

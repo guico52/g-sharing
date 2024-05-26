@@ -14,37 +14,31 @@ const routes = [
         path: '/login',
         name: 'LoginAndRegisterView',
         component: LoginAndRegisterView
-    },{
+    },
+    // {
+    //     path: '/',
+    //     name: 'HomeView',
+    //     // component: HomeView
+    //     component: () => import("../views/MenuView.vue"),
+    //     children: [
+    //         {
+    //            path: '/',
+    //            name: 'IntroduceView',
+    //             component: () => import("../views/main/IntroduceView.vue")
+    //
+    //         }, {
+    //             path:'/projects',
+    //             name: 'ProjectsView',
+    //             component: () => import("../views/main/ProjectsView.vue")
+    //         }, {
+    //             path: '/meeting',
+    //             name: 'MeetingView',
+    //             component: () => import("../views/main/MeetingView.vue")
+    //         }
+    //     ]
+    // },
+    {
         path: '/',
-        name: 'HomeView',
-        // component: HomeView
-        component: () => import("../views/main/MainPage.vue"),
-        children: [
-            {
-               path: '/',
-               name: 'IntroduceView',
-                component: () => import("../views/main/IntroduceView.vue")
-
-            }, {
-                path:'/projects',
-                name: 'ProjectsView',
-                component: () => import("../views/main/ProjectsView.vue")
-            }, {
-                path: '/meeting',
-                name: 'MeetingView',
-                component: () => import("../views/main/MeetingView.vue")
-            }, {
-                path: '/groupChat',
-                name: 'GroupChatView',
-                component: () => import("../views/main/GroupChatView.vue")
-            }, {
-                path: '/privateChat'
-                ,name: 'PrivateChatView',
-                component: () => import("../views/main/PrivateChatView.vue")
-            }
-        ]
-    },{
-        path: '/backstage',
         name: 'MenuView',
         component: MenuView,
         children: [
@@ -73,6 +67,7 @@ const routes = [
                 name: 'UserGroupView',
                 component: () => import("../views/menu/UserGroupView.vue")
             }, {
+
                 path: '/project/:id',
                 name: 'FileView',
                 component: () => import("../views/menu/FileView.vue")
@@ -100,6 +95,26 @@ const routes = [
                 path: '/meetingList'
                 ,name: 'MeetingListView',
                 component: () => import("../views/menu/MeetingListView.vue")
+            }, {
+                path: '/groupChat',
+                name: 'GroupChatView',
+                component: () => import("../views/main/GroupChatView.vue")
+            }, {
+                path: '/privateChat'
+                ,name: 'PrivateChatView',
+                component: () => import("../views/main/PrivateChatView.vue")
+            }, {
+                path: '/aiHelper',
+                name: 'AIHelperView',
+                component: () => import("../views/menu/AIHelperView.vue")
+            }, {
+                path: '/cloudDisk',
+                name: 'CloudDiskView',
+                component: () => import("../views/menu/CloudDiskView.vue")
+            }, {
+                path: '/approval',
+                name: 'ApprovalView',
+                component: () => import("../views/menu/ApprovalView.vue")
             }
         ]
     } ,{

@@ -11,7 +11,7 @@ export class PrivateChatWebSocket{
     connect() {
         // 使用 WebSocket 协议和服务器端点建立连接
         document.cookie = 'token='+localStorage.getItem('token');
-        this.ws = new WebSocket(`ws://localhost:8221/privateChat/${this.to}`);
+        this.ws = new WebSocket(`ws://localhost:8221/privateChat/${this.to}/${localStorage.getItem('token')}`);
 
         // 监听连接打开事件
         this.ws.onopen = () => {

@@ -55,7 +55,7 @@ const menuOption = ref([
         }, {
           default: () => '文件备份'
         }),
-    key: 'template',
+    key: 'backup',
     icon: renderIcon(DocumentOutline)
   }, {
     label: () => h(
@@ -103,22 +103,6 @@ const menuOption = ref([
     icon: renderIcon(ChatbubblesOutline)
   }, {
     label: () => h(
-        'div',
-        {},
-        {default: () =>'处理审批'}
-    ),
-    key: 'approval',
-    icon: renderIcon(ArrowUpCircleOutline)
-  }, {
-    label: () => h(
-        'div',
-        {},
-        {default: () =>'处理汇报'}
-    ),
-    key: 'report',
-    icon: renderIcon(ArrowBackCircleOutline)
-  } ,{
-    label: () => h(
         RouterLink,
         {
           class: 'menu-item',
@@ -126,7 +110,7 @@ const menuOption = ref([
         }, {
           default: () => '用户组管理'
         }),
-    key: 'user',
+    key: 'userGroup',
     icon: renderIcon(PeopleOutline)
   },{
     label: () => h(
@@ -178,7 +162,11 @@ onMounted(
           res => {
             systemPermission.value = res.data.data
             if(systemPermission.value <3){
-              menuOption.value = menuOption.value.filter(item => item.key !== 'manageUser')
+              menuOption.value = menuOption.value
+                  .filter(item => item.key !== 'manageUser')
+                  .filter(item => item.key !== 'deletedFile')
+                  .filter(item => item.key !== 'backup')
+                  .filter(item => item.key !== 'userGroup')
             }
           }
       )
@@ -206,7 +194,7 @@ function renderIcon(icon) {
               class="menu-sider"
 
           >
-            <div v-show="!collapsed" class="menu-title">管理员后台</div>
+            <div v-show="!collapsed" class="menu-title">在线协同知识库</div>
             <n-menu
                 :options="menuOption"
                 :collapsed="collapsed"
@@ -231,12 +219,13 @@ function renderIcon(icon) {
 }
 
 .menu {
-  width: 100vw;
+  overflow-y: hidden;
 }
 
 .menu-content-container {
   height: 100vh;
   overflow-x: scroll;
+  overflow-y: hidden;
 }
 .menu-title{
   font-size: 20px;

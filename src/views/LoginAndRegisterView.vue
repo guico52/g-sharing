@@ -23,6 +23,21 @@
         </div>
       </div>
     </div>
+    <!-- 动态背景泡泡 -->
+    <div class="bubble bubble1"></div>
+    <div class="bubble bubble2"></div>
+    <div class="bubble bubble3"></div>
+    <div class="bubble bubble4"></div>
+    <!-- 装饰性背景元素 -->
+    <div class="decorative-element decorative-element1"></div>
+    <div class="decorative-element decorative-element2"></div>
+    <div class="decorative-element decorative-element3"></div>
+    <div class="decorative-element decorative-element4"></div>
+    <!-- 新增背景元素 -->
+    <div class="background-element background-element1"></div>
+    <div class="background-element background-element2"></div>
+    <div class="background-element background-element3"></div>
+    <div class="background-element background-element4"></div>
   </div>
 </template>
 
@@ -31,7 +46,7 @@ import { login, register } from "../api/login.js";
 import { defineComponent, reactive } from "vue";
 import { router } from "../router/router.js";
 import { NInput, NButton } from "naive-ui";
-import {message} from "../api/api.js";
+import { message } from "../api/api.js";
 
 export default defineComponent({
   components: {
@@ -62,26 +77,28 @@ export default defineComponent({
               console.log(res.data.data.token);
               localStorage.removeItem('token')
               localStorage.setItem('token', res.data.data.token);
-              router.push({name: 'IntroduceView'});
+              document.cookie = `token=${res.data.data.token}`;
+              router.push({ name: 'MenuView' });
             }
           })
           .catch(err => {
-            console.log(err);
+            message.error(err.data.message)
           });
     };
 
     const registerFunc = () => {
       console.log(state.registerUsername, state.registerPassword, state.confirmPassword);
       if (state.registerPassword !== state.confirmPassword) {
-        alert('两次密码不一致');
+        message.error("两次密码不一致");
         return;
       }
       register(state.registerUsername, state.registerPassword, state.confirmPassword)
           .then(res => {
-            console.log(res);
+            if(res.data.code===200)
+            message.success("注册成功")
           })
           .catch(err => {
-            console.log(err);
+            message.error(err.data.message)
           });
     };
 
@@ -100,7 +117,7 @@ body {
   margin: 0;
   padding: 0;
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(to right, #83a4d4, #b6fbff); /* 渐变背景 */
+  background: linear-gradient(to right, #ff7e5f, #feb47b); /* 更加鲜艳的渐变背景 */
   height: 100vh;
 }
 
@@ -112,6 +129,7 @@ body {
   align-items: center;
   overflow: hidden;
   position: relative;
+  background: linear-gradient(to right, #ff7e5f, #feb47b, #ff7e5f); /* 多层次鲜艳渐变背景 */
 }
 
 .container-inner {
@@ -125,7 +143,7 @@ body {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(255, 255, 255, 0.6);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
   border-radius: 20px;
   padding: 2em;
@@ -160,7 +178,7 @@ body {
   border: 1px solid #ddd;
 }
 
-.primary-button , .secondary-button {
+.primary-button, .secondary-button {
   height: 3em;
   font-size: 18px;
 }
@@ -195,15 +213,39 @@ body {
   background: #cc4c4c;
 }
 
-/* 动画背景样式 */
+/* 动态背景泡泡 */
 .bubble {
   position: absolute;
   width: 50px;
   height: 50px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(58, 134, 255, 0.2); /* 半透明蓝色 */
   border-radius: 50%;
   bottom: -150px;
   animation: bubbleUp 10s linear infinite;
+}
+
+.bubble1 {
+  left: 20%;
+  animation-duration: 8s;
+  animation-delay: 2s;
+}
+
+.bubble2 {
+  left: 40%;
+  animation-duration: 6s;
+  animation-delay: 4s;
+}
+
+.bubble3 {
+  left: 60%;
+  animation-duration: 10s;
+  animation-delay: 6s;
+}
+
+.bubble4 {
+  left: 80%;
+  animation-duration: 12s;
+  animation-delay: 8s;
 }
 
 /* 动画关键帧 */
@@ -219,6 +261,99 @@ body {
     bottom: 100%;
     transform: scale(0.5);
     opacity: 0;
+  }
+}
+
+/* 装饰性背景元素 */
+.decorative-element {
+  position: absolute;
+  background: rgba(58, 134, 255, 0.1); /* 半透明蓝色 */
+  border-radius: 50%;
+}
+
+.decorative-element1 {
+  width: 80px;
+  height: 80px;
+  top: 20%;
+  left: 10%;
+  animation: float 6s ease-in-out infinite;
+}
+
+.decorative-element2 {
+  width: 60px;
+  height: 60px;
+  top: 50%;
+  left: 70%;
+  animation: float 8s ease-in-out infinite;
+}
+
+.decorative-element3 {
+  width: 100px;
+  height: 100px;
+  top: 80%;
+  left: 20%;
+  animation: float 10s ease-in-out infinite;
+}
+
+.decorative-element4 {
+  width: 40px;
+  height: 40px;
+  top: 30%;
+  left: 80%;
+  animation: float 12s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* 新增背景元素 */
+.background-element {
+  position: absolute;
+  background: rgba(255, 255, 255, 0.2); /* 半透明白色 */
+  border-radius: 50%;
+  animation: float 15s linear infinite;
+}
+
+.background-element1 {
+  width: 150px;
+  height: 150px;
+  top: 10%;
+  left: 25%;
+}
+
+.background-element2 {
+  width: 120px;
+  height: 120px;
+  top: 40%;
+  left: 60%;
+}
+
+.background-element3 {
+  width: 180px;
+  height: 180px;
+  top: 70%;
+  left: 15%;
+}
+
+.background-element4 {
+  width: 100px;
+  height: 100px;
+  top: 85%;
+  left: 75%;
+}
+
+@keyframes backgroundFloat {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-30px);
   }
 }
 </style>

@@ -27,7 +27,6 @@
           v-model:value="floatInput"
           class="float-input"
           placeholder="输入指令"/>
-  <NDropdown/>
 </template>
 
 <script>
@@ -90,7 +89,7 @@ export default {
       console.log(this.room)
       this.currentUser.name = res.data.data.username;
       this.currentUser.id = res.data.data.userId;
-      this.provider = new WebrtcProvider(this.room, ydoc);
+      this.provider = new WebrtcProvider(this.room, ydoc, {signaling: ["ws://192.168.1.3:4444"]});
       this.websocketPrivider = new MyWebsocket(
           `ws://localhost:8221/websocket/${this.room}/${this.currentUser.id}`,
           () => this.status = 'connected',
@@ -100,41 +99,7 @@ export default {
             this.status = 'disconnected';
           }
       );
-      this.editor = new Editor({
-        editorProps: {
-          attributes: {
-            class: 'editor__content',
-          },
-        },
-        onUpdate: ({editor}) => {
-          this.websocketPrivider.sendMessage(
-              JSON.stringify(
-                  {
-                    "type": "content",
-                    "html": editor.getHTML(),
-                    "text": editor.getText()
-                  }
-              ))
-        },
-        extensions: [
-          StarterKit.configure({
-            history: false,
-          }),
-          Highlight,
-          TaskList,
-          TaskItem,
-          Collaboration.configure({
-            document: ydoc,
-          }),
-          CollaborationCursor.configure({
-            provider: this.provider,
-            user: this.currentUser
-          }),
-          CharacterCount.configure({
-            limit: 10000
-          }),
-        ],
-      });
+
       filePermission(this.room).then(res => {
         console.log(res.data.data.level)
         if (res.data.data.level <= UserFilePermissionEnum.UNREADABLE) {
@@ -144,27 +109,55 @@ export default {
           return
         }
         if (res.data.data.level <= UserFilePermissionEnum.READ_ONLY) {
-          this.editor.setEditable(false)
           message.info('您只有查看权限')
           return
         }
         if (res.data.data.level >= UserFilePermissionEnum.READ_WRITE) {
           this.editable = true
-          this.editor.setEditable(true)
           message.success('您有编辑权限')
-          return
         }
       })
 
       getFileContent(this.room).then(res => {
         console.log(this.room)
-        this.editor.commands.setContent(res.data.data.html);
+        this.editor = new Editor({
+          content: res.data.data.html,
+          editable: this.editable,
+          editorProps: {
+            attributes: {
+              class: 'editor__content',
+            }
+          },
+          onUpdate: ({editor}) => {
+            this.websocketPrivider.sendMessage(
+                JSON.stringify(
+                    {
+                      "type": "content",
+                      "html": editor.getHTML(),
+                      "text": editor.getText()
+                    }
+                ))
+          },
+          extensions: [
+            StarterKit.configure({
+              history: false,
+            }),
+            Highlight,
+            TaskList,
+            TaskItem,
+            Collaboration.configure({
+              document: ydoc,
+            }),
+            CollaborationCursor.configure({
+              provider: this.provider,
+              user: this.currentUser
+            }),
+            CharacterCount.configure({
+              limit: 2**32,
+            }),
+          ],
+        });
       })
-      this.editor.css.append(`
-    .ProseMirror:focus {
-      border: none;
-    }
-    `)
     })
 
   },
@@ -205,7 +198,10 @@ export default {
     },
 
     toggleFloatInput(e) {
-      e.preventDefault()
+      e.preventDefault();
+      if(!this.editable){
+        return
+      }
       this.showFloatInput = !this.showFloatInput
     },
 

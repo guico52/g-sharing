@@ -11,7 +11,8 @@ export class GroupChatWebSocket{
     connect() {
         // 使用 WebSocket 协议和服务器端点建立连接
         document.cookie = 'token='+localStorage.getItem('token');
-        this.ws = new WebSocket(`ws://localhost:8221/groupChat/${this.groupId}`);
+        console.log(document.cookie)
+        this.ws = new WebSocket(`ws://localhost:8221/groupChat/${this.groupId}/${localStorage.getItem('token')}`);
 
         // 监听连接打开事件
         this.ws.onopen = () => {

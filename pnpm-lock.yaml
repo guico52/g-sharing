@@ -74,6 +74,9 @@ dependencies:
   file-saver:
     specifier: ^2.0.5
     version: 2.0.5
+  lib0:
+    specifier: ^0.2.94
+    version: 0.2.94
   livekit-client:
     specifier: ^2.1.3
     version: 2.1.3
@@ -110,6 +113,9 @@ dependencies:
   vuex:
     specifier: ^4.0.2
     version: 4.0.2(vue@3.3.8)
+  ws:
+    specifier: ^8.17.0
+    version: 8.17.0
   y-prosemirror:
     specifier: ^1.2.1
     version: 1.2.1(prosemirror-model@1.19.3)(prosemirror-state@1.4.3)(prosemirror-view@1.32.4)(y-protocols@1.0.6)(yjs@13.6.8)
@@ -846,7 +852,7 @@ packages:
   /@hocuspocus/common@2.8.1:
     resolution: {integrity: sha512-pNXBvmiNmF13X/t/VTNfYMyEnWkLJ9e1gTyc7vFozBTfN9EgX7rexT4INradC288wkQ5Ha1gZb908Q4XBucm9g==}
     dependencies:
-      lib0: 0.2.87
+      lib0: 0.2.94
     dev: false
 
   /@hocuspocus/provider@2.8.1(y-protocols@1.0.6)(yjs@13.6.8):
@@ -857,8 +863,8 @@ packages:
     dependencies:
       '@hocuspocus/common': 2.8.1
       '@lifeomic/attempt': 3.0.3
-      lib0: 0.2.87
-      ws: 8.14.2
+      lib0: 0.2.94
+      ws: 8.17.0
       y-protocols: 1.0.6(yjs@13.6.8)
       yjs: 13.6.8
     transitivePeerDependencies:
@@ -2340,8 +2346,8 @@ packages:
       setimmediate: 1.0.5
     dev: false
 
-  /lib0@0.2.87:
-    resolution: {integrity: sha512-TbB63XJixvNToW2IHWAFsCJj9tVnajmwjE14p69i51Rx8byOQd2IP4ourE8v4d7vhyO++nVm1sQk3ePslfbucg==}
+  /lib0@0.2.94:
+    resolution: {integrity: sha512-hZ3p54jL4Wpu7IOg26uC7dnEWiMyNlUrb9KoG7+xYs45WkQwpVvKFndVq2+pqLYKe1u8Fp3+zAfZHVvTK34PvQ==}
     engines: {node: '>=16'}
     hasBin: true
     dependencies:
@@ -3729,10 +3735,9 @@ packages:
       sdp: 3.2.0
     dev: false
 
-  /ws@8.14.2:
-    resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
+  /ws@8.17.0:
+    resolution: {integrity: sha512-uJq6108EgZMAl20KagGkzCKfMEjxmKvZHG7Tlq0Z6nOky7YF7aq4mOx6xK8TJ/i1LeK4Qus7INktacctDgY8Ow==}
     engines: {node: '>=10.0.0'}
-    requiresBuild: true
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: '>=5.0.2'
@@ -3757,7 +3762,7 @@ packages:
       y-protocols: ^1.0.1
       yjs: ^13.5.38
     dependencies:
-      lib0: 0.2.87
+      lib0: 0.2.94
       prosemirror-model: 1.19.3
       prosemirror-state: 1.4.3
       prosemirror-view: 1.32.4
@@ -3771,7 +3776,7 @@ packages:
     peerDependencies:
       yjs: ^13.0.0
     dependencies:
-      lib0: 0.2.87
+      lib0: 0.2.94
       yjs: 13.6.8
     dev: false
 
@@ -3782,12 +3787,12 @@ packages:
     peerDependencies:
       yjs: ^13.6.8
     dependencies:
-      lib0: 0.2.87
+      lib0: 0.2.94
       simple-peer: 9.11.1
       y-protocols: 1.0.6(yjs@13.6.8)
       yjs: 13.6.8
     optionalDependencies:
-      ws: 8.14.2
+      ws: 8.17.0
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -3801,5 +3806,5 @@ packages:
     resolution: {integrity: sha512-ZPq0hpJQb6f59B++Ngg4cKexDJTvfOgeiv0sBc4sUm8CaBWH7OQC4kcCgrqbjJ/B2+6vO49exvTmYfdlPtcjbg==}
     engines: {node: '>=16.0.0', npm: '>=8.0.0'}
     dependencies:
-      lib0: 0.2.87
+      lib0: 0.2.94
     dev: false

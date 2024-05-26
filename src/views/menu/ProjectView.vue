@@ -3,14 +3,14 @@
     <n-input class="search-input" round placeholder="搜索" v-model:value="state.searchInput">
 
     </n-input>
-    <n-button @click="getPageProjectList">
+    <n-button type="primary" @click="getPageProjectList">
       搜索
     </n-button>
-    <n-button @click="state.showModal = true">
+    <n-button type="info" @click="state.showModal = true">
       添加项目
     </n-button>
   </div>
-  <n-data-table :columns="state.tableColumns" :data="state.projects"/>
+  <n-data-table :columns="state.tableColumns" :pagination="{pageSize: 20}" :data="state.projects"/>
 
   <n-modal v-model:show="state.showModal" class="modal">
       <template #title>
@@ -38,7 +38,7 @@
 import {defineComponent, h, onMounted, reactive, ref} from "vue";
 import {NInput, NButton, NModal, NSelect, NDataTable, NSpace} from "naive-ui"
 import {router} from "../../router/router.js";
-import {getProjectList, createProject, getUserGroups} from "../../api/project.js";
+import {getProjectList, createProject, getUserGroups, deleteProject} from "../../api/project.js";
 import {list} from "../../api/usergroup.js";
 import {dialog} from "../../api/api.js";
 
@@ -60,7 +60,7 @@ export default defineComponent({
       searchInput: '',
       tableColumns: [
         {
-          title: '项目名称',
+          title: '知识库项目名称',
           key: 'name'
         },{
           title: '所属用户组',
@@ -75,12 +75,30 @@ export default defineComponent({
           title: '操作',
           key: 'action',
           render: (row) => {
-            return h(NSpace, {} , [
+            return h(NSpace , [
               h(NButton, {
+                type: 'primary',
                 onClick: () => {
-                  router.push({path: `/project/${row.id}`})
+                  router.push({name: 'FileView', params: {id: row.id}})
                 }
-              }, '查看')
+              }, '查看'),
+              h(NButton, {
+                type: 'error',
+                style: row.level <2 ? 'display: none' : '',
+                onClick: () => {
+                  dialog.error({
+                    title: '删除项目',
+                    content: '确定删除项目吗？删除项目后，项目下的所有文件都将被删除且不可恢复！',
+                    positiveText: '确定',
+                    negativeText: '取消',
+                    onPositiveClick: () => {
+                      deleteProject(row.id, row.groupId).then(res => {
+                        getPageProjectList()
+                      })
+                    }
+                  })
+                }
+              }, '删除')
             ])
           }
         }

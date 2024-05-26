@@ -6,17 +6,12 @@
             :collapsed="collapsed"
             :width="200"
             collapse-mode="width"
-            show-trigger
-            @collapse="collapsed = true"
-            @expand="collapsed = false"
             class="layout-sider"
         >
           <NMenu
               class="menu"
               v-model:value="selectedGroupId"
               :options="menuOption"
-              :collapsed-width="64"
-              :collapsed-icon-size="24"
               @update:value="handleMenuSelectChange"
           />
         </NLayoutSider>
@@ -84,7 +79,7 @@ const sendMessage = () => {
     message.warning('请输入聊天内容');
     return;
   }
-  websocket.sendMessage({message: input.value, type: 1});
+  websocket.sendMessage({message: input.value, type: 1, token: localStorage.getItem('token')});
   input.value = '';
 }
 onUnmounted(() => {

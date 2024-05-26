@@ -17,7 +17,7 @@
           <div class="meeting-content">
             <p>{{ meeting.description }}</p>
             <p>参与人数：{{ meeting.participants }}</p>
-            <NButton type="primary" class="join-button" @click="joinMeeting(meeting.name)">加入会议</NButton>
+            <NButton type="primary" class="join-button" @click="joinMeeting(meeting.id)">加入会议</NButton>
           </div>
         </NCard>
       </div>

@@ -23,7 +23,9 @@
     --bg-300:#cccccc;
 
 }
-
+elshl {
+    color: red;
+}
 body{
     background: var(--bg-100);
     color: var(--text-100);

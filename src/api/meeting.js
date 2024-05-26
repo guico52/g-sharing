@@ -4,8 +4,8 @@ export function getToken(meetingName){
     return post("/meeting/token", {name: meetingName})
 }
 
-export function createRoom(meetingName) {
-    return post("/meeting/create", {name: meetingName})
+export function createRoom(meetingName, rejoin) {
+    return post("/meeting/create", {name: meetingName, rejoin: rejoin})
 }
 
 export function listRooms(){
@@ -31,4 +31,8 @@ export function kickUser(meetingId, userId){
 
 export function deleteRoom(meetingId){
     return post("/meeting/delete", {name: meetingId})
+}
+
+export function isHost(meetingId){
+    return post("/meeting/isHost", {name: meetingId})
 }
