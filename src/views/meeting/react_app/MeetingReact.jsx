@@ -14,11 +14,9 @@ import {Button,  Modal, Space} from "antd";
 import {message} from '../../../api/api.js'
 
 const serverUrl = 'ws://101.33.210.228:7880';
-const token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJkMzBhOGQ1YmYzNzk0ZmIyYjBiY2JlYzE0MmExY2RlZiIsImlzcyI6ImRldmtleSIsIm5hbWUiOiJyb290IiwidmlkZW8iOnsicm9vbUpvaW4iOnRydWUsInJvb20iOiJ0ZXN0MiJ9LCJleHAiOjE3MTU4OTU4OTEsImp0aSI6ImQzMGE4ZDViZjM3OTRmYjJiMGJjYmVjMTQyYTFjZGVmIn0.SsBz-FU0-2ruC4AqcVut9-SG4uSQ0YIX3WwgF9lS3Go';
 
 export default function MeetingReact() {
     const name = window.location.href.split('/').pop();
-    const roomServiceClient = new RoomServiceClient(serverUrl, 'devkey', 'secret');
     const [token, setToken] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [data, setData] = useState([]);

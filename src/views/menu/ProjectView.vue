@@ -84,7 +84,9 @@ export default defineComponent({
               }, '查看'),
               h(NButton, {
                 type: 'error',
-                style: row.level <2 ? 'display: none' : '',
+                style: {
+                    display: row.level > 2 ? 'block': 'none'
+                },
                 onClick: () => {
                   dialog.error({
                     title: '删除项目',

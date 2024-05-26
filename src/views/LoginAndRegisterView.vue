@@ -68,7 +68,11 @@ export default defineComponent({
     };
 
     const loginFunc = () => {
-      console.log(state.username, state.password);
+      // 检查用户名和密码是否为空
+      if (state.username === '' || state.password === '') {
+        message.error("用户名和密码不能为空");
+        return;
+      }
       login(state.username, state.password)
           .then(res => {
             console.log(res);
@@ -87,7 +91,11 @@ export default defineComponent({
     };
 
     const registerFunc = () => {
-      console.log(state.registerUsername, state.registerPassword, state.confirmPassword);
+      // 检查用户名和密码是否为空
+      if (state.registerUsername === '' || state.registerPassword === '' || state.confirmPassword === '') {
+        message.error("用户名和密码不能为空");
+        return;
+      }
       if (state.registerPassword !== state.confirmPassword) {
         message.error("两次密码不一致");
         return;
