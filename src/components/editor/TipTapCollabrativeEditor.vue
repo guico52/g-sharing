@@ -89,7 +89,7 @@ export default {
       console.log(this.room)
       this.currentUser.name = res.data.data.username;
       this.currentUser.id = res.data.data.userId;
-      this.provider = new WebrtcProvider(this.room, ydoc, {signaling: ["ws://192.168.1.3:4444"]});
+      this.provider = new WebrtcProvider(this.room, ydoc, {signaling: ["ws://localhost:4444"]});
       this.websocketPrivider = new MyWebsocket(
           `ws://localhost:8221/websocket/${this.room}/${this.currentUser.id}`,
           () => this.status = 'connected',
@@ -99,7 +99,6 @@ export default {
             this.status = 'disconnected';
           }
       );
-
       filePermission(this.room).then(res => {
         console.log(res.data.data.level)
         if (res.data.data.level <= UserFilePermissionEnum.UNREADABLE) {
@@ -114,14 +113,13 @@ export default {
         }
         if (res.data.data.level >= UserFilePermissionEnum.READ_WRITE) {
           this.editable = true
+          this.editor.setEditable(true)
           message.success('您有编辑权限')
         }
       })
-
       getFileContent(this.room).then(res => {
         console.log(this.room)
         this.editor = new Editor({
-          content: res.data.data.html,
           editable: this.editable,
           editorProps: {
             attributes: {
@@ -157,14 +155,18 @@ export default {
             }),
           ],
         });
+        if(this.editor.getContent().isEmpty){
+          this.editor.commands.setContent(res.data.data.content)
+        }
       })
+
+
+
     })
 
   },
   watch: {
-    editor: function (newVal, oldVal) {
-      console.log("editor changed, oldVal: ", oldVal, "newVal: ", newVal);
-    }
+
   },
 
   methods: {

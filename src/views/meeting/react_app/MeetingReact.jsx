@@ -4,14 +4,11 @@ import {
     LiveKitRoom,
     VideoConference, ParticipantName,
 } from '@livekit/components-react';
-import {RoomServiceClient} from 'livekit-server-sdk'
 import {useCallback, useEffect, useState} from "react";
 import {getToken, isHost, kickUser, listParticipants, muteUser, unmuteUser} from "../../../api/meeting.js";
 import {router} from "../../../router/router.js";
-import {NModal} from "naive-ui";
 import {useHotkeys} from "react-hotkeys-hook";
 import {Button,  Modal, Space} from "antd";
-import {message} from '../../../api/api.js'
 
 const serverUrl = 'ws://101.33.210.228:7880';
 
@@ -33,7 +30,6 @@ export default function MeetingReact() {
     const updateDate = useCallback(() => {
         listParticipants(name).then(
             res => {
-                console.log(res.data.data)
                 setData(res.data.data)
             }
         );
