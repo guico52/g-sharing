@@ -6,8 +6,8 @@ import * as map from 'lib0/map'
 
 const wsReadyStateConnecting = 0
 const wsReadyStateOpen = 1
-const wsReadyStateClosing = 2 // eslint-disable-line
-const wsReadyStateClosed = 3 // eslint-disable-line
+const wsReadyStateClosing = 2 
+const wsReadyStateClosed = 3 
 
 const pingTimeout = 30000
 
@@ -19,16 +19,9 @@ const server = http.createServer((request, response) => {
     response.end('okay')
 })
 
-/**
- * Map froms topic-name to set of subscribed clients.
- * @type {Map<string, Set<any>>}
- */
+
 const topics = new Map()
 
-/**
- * @param {any} conn
- * @param {object} message
- */
 const send = (conn, message) => {
     if (conn.readyState !== wsReadyStateConnecting && conn.readyState !== wsReadyStateOpen) {
         conn.close()
@@ -40,17 +33,11 @@ const send = (conn, message) => {
     }
 }
 
-/**
- * Setup a new client
- * @param {any} conn
- */
+
 const onconnection = conn => {
-    /**
-     * @type {Set<string>}
-     */
+
     const subscribedTopics = new Set()
     let closed = false
-    // Check if connection is still alive
     let pongReceived = true
     const pingInterval = setInterval(() => {
         if (!pongReceived) {
@@ -79,14 +66,14 @@ const onconnection = conn => {
         subscribedTopics.clear()
         closed = true
     })
-    conn.on('message', /** @param {object} message */ message => {
+    conn.on('message', message => {
         if (typeof message === 'string' || message instanceof Buffer) {
             message = JSON.parse(message)
         }
         if (message && message.type && !closed) {
             switch (message.type) {
                 case 'subscribe':
-                    /** @type {Array<string>} */ (message.topics || []).forEach(topicName => {
+                     (message.topics || []).forEach(topicName => {
                         if (typeof topicName === 'string') {
                             // add conn to topic
                             const topic = map.setIfUndefined(topics, topicName, () => new Set())
@@ -97,7 +84,7 @@ const onconnection = conn => {
                     })
                     break
                 case 'unsubscribe':
-                    /** @type {Array<string>} */ (message.topics || []).forEach(topicName => {
+                     (message.topics || []).forEach(topicName => {
                         const subs = topics.get(topicName)
                         if (subs) {
                             subs.delete(conn)
@@ -124,10 +111,7 @@ const onconnection = conn => {
 wss.on('connection', onconnection)
 
 server.on('upgrade', (request, socket, head) => {
-    // You may check auth of request here..
-    /**
-     * @param {any} ws
-     */
+
     const handleAuth = ws => {
         wss.emit('connection', ws, request)
     }

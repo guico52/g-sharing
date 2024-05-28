@@ -162,8 +162,8 @@ export default {
 
   },
   watch: {
-    editor: function (newVal, oldVal) {
-      console.log("editor changed, oldVal: ", oldVal, "newVal: ", newVal);
+    editable : function (newVal, oldVal) {
+      this.editor.setEditable(newVal)
     }
   },
 
