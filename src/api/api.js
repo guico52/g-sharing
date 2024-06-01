@@ -2,7 +2,7 @@ import axios from 'axios'
 import {createDiscreteApi} from "naive-ui";
 // import {inject} from "vue"
 export const BASE_URL = 'http://192.168.1.3:8221'
-const instance = axios.create({
+export const instance = axios.create({
     headers: {
         'Content-Type': 'application/json;charset=UTF-8',
         'Access-Control-Allow-Origin': '*'

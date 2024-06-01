@@ -18,6 +18,7 @@
     "@tiptap/extension-collaboration": "^2.1.12",
     "@tiptap/extension-collaboration-cursor": "^2.1.12",
     "@tiptap/extension-highlight": "^2.1.12",
+    "@tiptap/extension-image": "^2.4.0",
     "@tiptap/extension-table": "^2.4.0",
     "@tiptap/extension-table-cell": "^2.4.0",
     "@tiptap/extension-table-header": "^2.4.0",

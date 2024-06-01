@@ -38,6 +38,7 @@ import Highlight from '@tiptap/extension-highlight'
 import TaskItem from '@tiptap/extension-task-item'
 import TaskList from '@tiptap/extension-task-list'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
 import {Editor, EditorContent} from '@tiptap/vue-3'
 import * as Y from 'yjs'
 
@@ -49,6 +50,7 @@ import {router} from "../../router/router.js";
 import {BASE_URL, message} from "../../api/api.js";
 import {UserFilePermissionEnum} from "../../util/enums.js";
 import {NInput} from "naive-ui";
+import {uploadImg} from "../../api/editor.js";
 
 
 // 获取随机的数组下标，用于获取随机的颜色
@@ -126,6 +128,31 @@ export default {
           editorProps: {
             attributes: {
               class: 'editor__content',
+            },
+            handleDOMEvents: {
+              drop: (editor, event) => {
+                event.preventDefault();
+                console.log(editor,event)
+                const dataTransfer = event.dataTransfer;
+                if (dataTransfer && dataTransfer.files && dataTransfer.files.length) {
+                  const file = dataTransfer.files[0];
+                  if (file.type.startsWith('image/')) {
+                    event.preventDefault();
+                    this.handleFile(file).then((res) => {
+                      const fileName = res.data.data;
+                      this.editor.chain().focus().setImage({src: BASE_URL + '/downloadImg/' + fileName}).run();
+                      this.websocketPrivider.sendMessage(
+                          JSON.stringify(
+                              {
+                                "type": "content",
+                                "html": this.editor.getHTML(),
+                                "text": this.editor.getText()
+                              }
+                          ))
+                    });
+                  }
+                }
+              },
             }
           },
           onUpdate: ({editor}) => {
@@ -155,6 +182,10 @@ export default {
             CharacterCount.configure({
               limit: 2**32,
             }),
+            Image.configure({
+              inline: true,
+              allowBase64: true,
+            })
           ],
         });
       })
@@ -163,7 +194,10 @@ export default {
   },
   watch: {
     editable : function (newVal, oldVal) {
-      this.editor.setEditable(newVal)
+      if(this.editor){
+        this.editor.setEditable(newVal)
+      }
+
     }
   },
 
@@ -195,6 +229,10 @@ export default {
         '#94FADB',
         '#B9F18D',
       ])
+    },
+
+    handleFile(file) {
+      return uploadImg(file)
     },
 
     toggleFloatInput(e) {
